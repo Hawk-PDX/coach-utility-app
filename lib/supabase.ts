@@ -16,6 +16,16 @@ export type Team = {
   updated_at: string;
 };
 
+export type Game = {
+  id: string;
+  team_id: string;
+  game_date: string;
+  opponent: string | null;
+  location: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
 export type Player = {
   id: string;
   team_id: string;

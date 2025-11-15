@@ -9,6 +9,17 @@ CREATE TABLE teams (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Games table
+CREATE TABLE games (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
+  game_date DATE NOT NULL,
+  opponent TEXT,
+  location TEXT,
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Players table
 CREATE TABLE players (
   team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
@@ -22,6 +33,7 @@ CREATE TABLE players (
 CREATE TABLE play_time (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   player_id UUID REFERENCES players(id) ON DELETE CASCADE,
+  game_id UUID REFERENCES games(id) ON DELETE CASCADE,
   game_date DATE NOT NULL,
   minutes_played INTEGER DEFAULT 0,
   shifts INTEGER DEFAULT 0,
@@ -31,6 +43,7 @@ CREATE TABLE play_time (
 CREATE TABLE game_stats (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   player_id UUID REFERENCES players(id) ON DELETE CASCADE,
+  game_id UUID REFERENCES games(id) ON DELETE CASCADE,
   game_date DATE NOT NULL,
   points INTEGER DEFAULT 0,
   assists INTEGER DEFAULT 0,
@@ -54,6 +67,8 @@ CREATE INDEX idx_game_stats_date ON game_stats(game_date);
 CREATE INDEX idx_medals_player ON medals(player_id);
 CREATE INDEX idx_medals_week ON medals(season_year, week_number);
 CREATE INDEX idx_players_team ON players(team_id);
+CREATE INDEX idx_games_team ON games(team_id);
+CREATE INDEX idx_games_date ON games(game_date);
 CREATE OR REPLACE FUNCTION update_updated_at_column() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
 RETURN NEW;
 END;

@@ -76,8 +76,11 @@ After migration, verify everything works:
 ## What Changed
 
 - **New `teams` table**: Stores team information including name, sport, and season dates
+- **New `games` table**: Stores individual game sessions with opponent and location
 - **Updated `players` table**: Now includes a `team_id` column to associate players with teams
+- **Updated `play_time` and `game_stats` tables**: Now include `game_id` to link stats to specific games
 - **Landing page**: Now shows all teams with the ability to add new ones
+- **Coach page**: Live stat tracking with game sessions and quick edit buttons
 - **Coach/Parents pages**: Now filter by selected team
 - **Players page**: Now adds players to the selected team
 
