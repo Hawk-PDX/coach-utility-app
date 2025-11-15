@@ -157,19 +157,19 @@ export default function Home() {
         )}
 
         <nav className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <a href="/players" className="bg-gray-100 p-4 rounded-lg text-center hover:bg-gray-200">
+          <a href="/players" className="bg-gray-800 text-white p-4 rounded-lg text-center hover:bg-gray-700 font-medium">
             <span className="text-2xl mb-2 block">👥</span>
             Players
           </a>
-          <a href="/reports" className="bg-gray-100 p-4 rounded-lg text-center hover:bg-gray-200">
+          <a href="/reports" className="bg-gray-800 text-white p-4 rounded-lg text-center hover:bg-gray-700 font-medium">
             <span className="text-2xl mb-2 block">📊</span>
             Reports
           </a>
-          <a href="/medals" className="bg-gray-100 p-4 rounded-lg text-center hover:bg-gray-200">
+          <a href="/medals" className="bg-gray-800 text-white p-4 rounded-lg text-center hover:bg-gray-700 font-medium">
             <span className="text-2xl mb-2 block">🏅</span>
             Medals
           </a>
-          <a href="/games" className="bg-gray-100 p-4 rounded-lg text-center hover:bg-gray-200">
+          <a href="/games" className="bg-gray-800 text-white p-4 rounded-lg text-center hover:bg-gray-700 font-medium">
             <span className="text-2xl mb-2 block">🏀</span>
             Games
           </a>
