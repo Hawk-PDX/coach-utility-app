@@ -1,91 +1,60 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase, type Player } from '@/lib/supabase';
+import Link from 'next/link';
+import { supabase, type Team } from '@/lib/supabase';
 
-export default function Home() {
-  const [players, setPlayers] = useState<Player[]>([]);
+export default function LandingPage() {
+  const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    sport: 'Basketball',
+    season_start: '',
+    season_end: ''
+  });
 
   useEffect(() => {
-    loadPlayers();
-    
-    // Poll for updates every 5 seconds (free tier alternative to realtime)
-    const pollInterval = setInterval(() => {
-      loadPlayers();
-    }, 5000);
-    
-    return () => {
-      clearInterval(pollInterval);
-    };
+    loadTeams();
   }, []);
 
-  const loadPlayers = async () => {
+  const loadTeams = async () => {
     const { data, error } = await supabase
-      .from('players')
+      .from('teams')
       .select('*')
-      .order('name');
+      .order('created_at', { ascending: false });
     
     if (error) {
-      console.error('Error loading players:', error);
+      console.error('Error loading teams:', error);
     } else {
-      setPlayers(data || []);
+      setTeams(data || []);
     }
     setLoading(false);
   };
 
-  const trackPlayTime = async (playerId: string) => {
-    const today = new Date().toISOString().split('T')[0];
+  const handleAddTeam = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    // Check if entry exists for today
-    const { data: existing } = await supabase
-      .from('play_time')
-      .select('*')
-      .eq('player_id', playerId)
-      .eq('game_date', today)
-      .single();
-
-    if (existing) {
-      // Increment shifts
-      await supabase
-        .from('play_time')
-        .update({ shifts: existing.shifts + 1 })
-        .eq('id', existing.id);
+    const { error } = await supabase
+      .from('teams')
+      .insert([formData]);
+    
+    if (error) {
+      console.error('Error adding team:', error);
+      alert('Failed to add team');
     } else {
-      // Create new entry
-      await supabase
-        .from('play_time')
-        .insert({ player_id: playerId, game_date: today, shifts: 1 });
+      setFormData({ name: '', sport: 'Basketball', season_start: '', season_end: '' });
+      setShowAddForm(false);
+      loadTeams();
     }
-    
-    alert('Play time tracked!');
   };
 
-  const quickStat = async (playerId: string, statType: 'points' | 'assists' | 'rebounds') => {
-    const today = new Date().toISOString().split('T')[0];
-    
-    const { data: existing } = await supabase
-      .from('game_stats')
-      .select('*')
-      .eq('player_id', playerId)
-      .eq('game_date', today)
-      .single();
-
-    const increment = { [statType]: (existing?.[statType] || 0) + 1 };
-
-    if (existing) {
-      await supabase
-        .from('game_stats')
-        .update(increment)
-        .eq('id', existing.id);
-    } else {
-      await supabase
-        .from('game_stats')
-        .insert({ player_id: playerId, game_date: today, ...increment });
-    }
-    
-    alert(`${statType} tracked!`);
+  const formatDateRange = (start: string, end: string) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const options: Intl.DateTimeFormatOptions = { month: 'short', year: 'numeric' };
+    return `${startDate.toLocaleDateString('en-US', options)} - ${endDate.toLocaleDateString('en-US', options)}`;
   };
 
   if (loading) {
@@ -97,83 +66,157 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Coach Utility</h1>
-        
-        {players.length === 0 ? (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-2">Get Started</h2>
-            <p className="mb-4">Add players to your roster to start tracking.</p>
-            <a 
-              href="/players" 
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg inline-block hover:bg-blue-700"
-            >
-              Add Players
-            </a>
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-5xl md:text-6xl font-bold mb-4">
+            Coach Utility App
+          </h1>
+          <p className="text-xl md:text-2xl text-blue-100">
+            Managing your teams, one season at a time
+          </p>
+        </div>
+      </div>
+
+      {/* Teams Section */}
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-900">Your Teams</h2>
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition"
+          >
+            {showAddForm ? 'Cancel' : '+ Add Team'}
+          </button>
+        </div>
+
+        {/* Add Team Form */}
+        {showAddForm && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 className="text-xl font-semibold mb-4">Add New Team</h3>
+            <form onSubmit={handleAddTeam} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Team Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., Hawks U12"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Sport
+                </label>
+                <select
+                  value={formData.sport}
+                  onChange={(e) => setFormData({ ...formData, sport: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="Basketball">Basketball</option>
+                  <option value="Soccer">Soccer</option>
+                  <option value="Baseball">Baseball</option>
+                  <option value="Football">Football</option>
+                  <option value="Hockey">Hockey</option>
+                  <option value="Volleyball">Volleyball</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Season Start
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={formData.season_start}
+                    onChange={(e) => setFormData({ ...formData, season_start: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Season End
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={formData.season_end}
+                    onChange={(e) => setFormData({ ...formData, season_end: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
+              >
+                Create Team
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Teams List */}
+        {teams.length === 0 ? (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
+            <p className="text-lg text-gray-700 mb-4">
+              No teams yet. Add your first team to get started!
+            </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {players.map((player) => (
-              <div key={player.id} className="bg-white border rounded-lg p-4 shadow-sm">
-                <div className="flex justify-between items-center mb-3">
-                  <div>
-                    <h3 className="text-xl font-semibold">{player.name}</h3>
-                    <p className="text-gray-600">
-                      #{player.jersey_number} {player.position && `• ${player.position}`}
-                    </p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {teams.map((team) => (
+              <div key={team.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-1">
+                        {team.name}
+                      </h3>
+                      <p className="text-sm text-gray-600">{team.sport}</p>
+                    </div>
+                    <span className="text-2xl">
+                      {team.sport === 'Basketball' && '🏀'}
+                      {team.sport === 'Soccer' && '⚽'}
+                      {team.sport === 'Baseball' && '⚾'}
+                      {team.sport === 'Football' && '🏈'}
+                      {team.sport === 'Hockey' && '🏒'}
+                      {team.sport === 'Volleyball' && '🏐'}
+                      {team.sport === 'Other' && '🏆'}
+                    </span>
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  <button
-                    onClick={() => trackPlayTime(player.id)}
-                    className="bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 active:scale-95 transition"
-                  >
-                    + Shift
-                  </button>
-                  <button
-                    onClick={() => quickStat(player.id, 'points')}
-                    className="bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 active:scale-95 transition"
-                  >
-                    + Point
-                  </button>
-                  <button
-                    onClick={() => quickStat(player.id, 'assists')}
-                    className="bg-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 active:scale-95 transition"
-                  >
-                    + Assist
-                  </button>
-                  <button
-                    onClick={() => quickStat(player.id, 'rebounds')}
-                    className="bg-orange-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-orange-700 active:scale-95 transition"
-                  >
-                    + Rebound
-                  </button>
+                  <p className="text-sm text-gray-500 mb-4">
+                    {formatDateRange(team.season_start, team.season_end)}
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Link
+                      href={`/coach?team=${team.id}`}
+                      className="bg-blue-600 text-white text-center py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition text-sm"
+                    >
+                      Coach
+                    </Link>
+                    <Link
+                      href={`/parents?team=${team.id}`}
+                      className="bg-green-600 text-white text-center py-2 px-4 rounded-lg font-medium hover:bg-green-700 transition text-sm"
+                    >
+                      Parents
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
-
-        <nav className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <a href="/players" className="bg-gray-800 text-white p-4 rounded-lg text-center hover:bg-gray-700 font-medium">
-            <span className="text-2xl mb-2 block">👥</span>
-            Players
-          </a>
-          <a href="/reports" className="bg-gray-800 text-white p-4 rounded-lg text-center hover:bg-gray-700 font-medium">
-            <span className="text-2xl mb-2 block">📊</span>
-            Reports
-          </a>
-          <a href="/medals" className="bg-gray-800 text-white p-4 rounded-lg text-center hover:bg-gray-700 font-medium">
-            <span className="text-2xl mb-2 block">🏅</span>
-            Medals
-          </a>
-          <a href="/games" className="bg-gray-800 text-white p-4 rounded-lg text-center hover:bg-gray-700 font-medium">
-            <span className="text-2xl mb-2 block">🏀</span>
-            Games
-          </a>
-        </nav>
       </div>
     </main>
   );

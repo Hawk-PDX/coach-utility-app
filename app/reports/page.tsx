@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { supabase, type Player } from '@/lib/supabase';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { supabase, type Player, type Team } from '@/lib/supabase';
 
 interface GameStat {
   id: string;
@@ -28,18 +30,37 @@ interface PlayerStats {
   gamesPlayed: number;
 }
 
-export default function ReportsPage() {
+function ReportsContent() {
+  const searchParams = useSearchParams();
+  const teamId = searchParams.get('team');
+  
+  const [team, setTeam] = useState<Team | null>(null);
   const [playerStats, setPlayerStats] = useState<PlayerStats[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadReports();
-  }, []);
+    if (teamId) {
+      loadReports();
+    }
+  }, [teamId]);
 
   const loadReports = async () => {
+    if (!teamId) return;
+    
+    const { data: teamData } = await supabase
+      .from('teams')
+      .select('*')
+      .eq('id', teamId)
+      .single();
+    
+    if (teamData) {
+      setTeam(teamData);
+    }
+    
     const { data: players } = await supabase
       .from('players')
       .select('*')
+      .eq('team_id', teamId)
       .order('name');
 
     const { data: gameStats } = await supabase
@@ -68,6 +89,19 @@ export default function ReportsPage() {
     setLoading(false);
   };
 
+  if (!teamId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center">
+          <p className="text-xl mb-4">No team selected</p>
+          <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">
+            ← Back to Teams
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -79,7 +113,13 @@ export default function ReportsPage() {
   return (
     <main className="min-h-screen p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Player Reports</h1>
+        <div className="mb-2">
+          <Link href={`/coach?team=${teamId}`} className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-block">
+            ← Back to Coach
+          </Link>
+        </div>
+        <h1 className="text-3xl font-bold mb-2">Player Reports</h1>
+        {team && <p className="text-gray-600 mb-6">{team.name}</p>}
 
         <div className="bg-white border rounded-lg overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
@@ -118,13 +158,21 @@ export default function ReportsPage() {
         </div>
 
         {playerStats.length === 0 && (
-          <p className="text-center text-gray-500 py-8">No player data yet. Start tracking stats from the home page!</p>
+          <p className="text-center text-gray-500 py-8">No player data yet. Start tracking stats from the coach page!</p>
         )}
-
-        <div className="mt-8">
-          <a href="/" className="text-blue-600 hover:underline">← Back to Home</a>
-        </div>
       </div>
     </main>
+  );
+}
+
+export default function ReportsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl">Loading...</p>
+      </div>
+    }>
+      <ReportsContent />
+    </Suspense>
   );
 }

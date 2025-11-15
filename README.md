@@ -8,11 +8,12 @@ Keeping track of who's played how much, who scored what, and making sure everyon
 
 ## What It Does
 
+- Manage multiple teams with separate rosters and seasons
 - Track shifts to monitor playing time equity
 - Log points, assists, and rebounds with one tap
 - Manage roster with jersey numbers and positions
 - View season stats and game history
-- Track awards/medals to ensure everyone gets recognition
+- Track awards and recognition throughout the season
 - All data persists in PostgreSQL (via Supabase)
 - Works well on mobile for sideline use
 
@@ -56,22 +57,25 @@ Add your Supabase environment variables in Vercel's dashboard under Settings →
 
 ## Usage
 
-1. Add your roster on the Players page
-2. During games, tap buttons to track shifts and stats
-3. Check Reports and Medals pages for season-long data
+1. Add a team with name, sport, and season dates
+2. Build your roster on the Players page
+3. During games, tap buttons to track shifts and stats
+4. Check Reports and Medals pages for season data
+
+See `MIGRATION_GUIDE.md` if updating from an earlier version.
 
 Full deployment notes in `DEPLOYMENT.md` if you want to set up custom domains, auth, etc.
 
 ## Schema
 
-Four tables: `players`, `play_time`, `game_stats`, `medals`. Check `supabase-schema.sql` for details.
+Five tables: `teams`, `players`, `play_time`, `game_stats`, `medals`. Check `supabase-schema.sql` for details.
 
 ## What's Next
 
 - Better reports with play time balance warnings
 - CSV export
 - Offline mode
-- Multi-season support
+- Parent portal features (schedules, rosters, snack signups)
 
 ## License
 

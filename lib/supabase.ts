@@ -6,8 +6,19 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Database types
+export type Team = {
+  id: string;
+  name: string;
+  sport: string;
+  season_start: string;
+  season_end: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Player = {
   id: string;
+  team_id: string;
   name: string;
   jersey_number: number | null;
   position: string | null;

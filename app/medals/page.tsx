@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { supabase, type Player } from '@/lib/supabase';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { supabase, type Player, type Team } from '@/lib/supabase';
 
 interface GameStat {
   id: string;
@@ -20,18 +22,37 @@ interface Award {
   description: string;
 }
 
-export default function MedalsPage() {
+function MedalsContent() {
+  const searchParams = useSearchParams();
+  const teamId = searchParams.get('team');
+  
+  const [team, setTeam] = useState<Team | null>(null);
   const [awards, setAwards] = useState<Award[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadAwards();
-  }, []);
+    if (teamId) {
+      loadAwards();
+    }
+  }, [teamId]);
 
   const loadAwards = async () => {
+    if (!teamId) return;
+    
+    const { data: teamData } = await supabase
+      .from('teams')
+      .select('*')
+      .eq('id', teamId)
+      .single();
+    
+    if (teamData) {
+      setTeam(teamData);
+    }
+    
     const { data: players } = await supabase
       .from('players')
-      .select('*');
+      .select('*')
+      .eq('team_id', teamId);
 
     const { data: gameStats } = await supabase
       .from('game_stats')
@@ -94,6 +115,19 @@ export default function MedalsPage() {
     setLoading(false);
   };
 
+  if (!teamId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center">
+          <p className="text-xl mb-4">No team selected</p>
+          <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">
+            ← Back to Teams
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -105,7 +139,13 @@ export default function MedalsPage() {
   return (
     <main className="min-h-screen p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Awards & Medals</h1>
+        <div className="mb-2">
+          <Link href={`/coach?team=${teamId}`} className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-block">
+            ← Back to Coach
+          </Link>
+        </div>
+        <h1 className="text-3xl font-bold mb-2">Awards & Medals</h1>
+        {team && <p className="text-gray-600 mb-6">{team.name}</p>}
 
         {awards.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -134,10 +174,19 @@ export default function MedalsPage() {
           </div>
         )}
 
-        <div className="mt-8">
-          <a href="/" className="text-blue-600 hover:underline">← Back to Home</a>
-        </div>
       </div>
     </main>
+  );
+}
+
+export default function MedalsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl">Loading...</p>
+      </div>
+    }>
+      <MedalsContent />
+    </Suspense>
   );
 }

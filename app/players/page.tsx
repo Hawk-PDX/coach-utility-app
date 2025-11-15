@@ -1,9 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { supabase, type Player } from '@/lib/supabase';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { supabase, type Player, type Team } from '@/lib/supabase';
 
-export default function PlayersPage() {
+function PlayersContent() {
+  const searchParams = useSearchParams();
+  const teamId = searchParams.get('team');
+  
+  const [team, setTeam] = useState<Team | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -13,13 +19,30 @@ export default function PlayersPage() {
   });
 
   useEffect(() => {
-    loadPlayers();
-  }, []);
+    if (teamId) {
+      loadTeamAndPlayers();
+    }
+  }, [teamId]);
 
-  const loadPlayers = async () => {
+  const loadTeamAndPlayers = async () => {
+    if (!teamId) return;
+    
+    // Load team info
+    const { data: teamData } = await supabase
+      .from('teams')
+      .select('*')
+      .eq('id', teamId)
+      .single();
+    
+    if (teamData) {
+      setTeam(teamData);
+    }
+    
+    // Load players for this team
     const { data } = await supabase
       .from('players')
       .select('*')
+      .eq('team_id', teamId)
       .order('name');
     setPlayers(data || []);
   };
@@ -27,7 +50,10 @@ export default function PlayersPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!teamId) return;
+    
     const { error } = await supabase.from('players').insert({
+      team_id: teamId,
       name: formData.name,
       jersey_number: formData.jersey_number ? parseInt(formData.jersey_number) : null,
       position: formData.position || null,
@@ -38,7 +64,7 @@ export default function PlayersPage() {
     } else {
       setFormData({ name: '', jersey_number: '', position: '' });
       setShowForm(false);
-      loadPlayers();
+      loadTeamAndPlayers();
     }
   };
 
@@ -52,15 +78,36 @@ export default function PlayersPage() {
     if (error) {
       alert('Error deleting player: ' + error.message);
     } else {
-      loadPlayers();
+      loadTeamAndPlayers();
     }
   };
+
+  if (!teamId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center">
+          <p className="text-xl mb-4">No team selected</p>
+          <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">
+            ← Back to Teams
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
+        <div className="mb-2">
+          <Link href={`/coach?team=${teamId}`} className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-block">
+            ← Back to Coach
+          </Link>
+        </div>
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Players</h1>
+          <div>
+            <h1 className="text-3xl font-bold">Players</h1>
+            {team && <p className="text-gray-600">{team.name}</p>}
+          </div>
           <button
             onClick={() => setShowForm(!showForm)}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
@@ -136,11 +183,19 @@ export default function PlayersPage() {
         {players.length === 0 && !showForm && (
           <p className="text-center text-gray-500 py-8">No players yet. Add your first player to get started!</p>
         )}
-
-        <div className="mt-8">
-          <a href="/" className="text-blue-600 hover:underline">← Back to Home</a>
-        </div>
       </div>
     </main>
+  );
+}
+
+export default function PlayersPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl">Loading...</p>
+      </div>
+    }>
+      <PlayersContent />
+    </Suspense>
   );
 }
