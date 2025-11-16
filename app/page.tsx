@@ -7,6 +7,7 @@ import { supabase, type Team } from '@/lib/supabase';
 export default function LandingPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -37,17 +38,29 @@ export default function LandingPage() {
     e.preventDefault();
     e.stopPropagation();
     
-    const { error } = await supabase
-      .from('teams')
-      .insert([formData]);
+    console.log('Form submitted with data:', formData);
+    setSubmitting(true);
     
-    if (error) {
-      console.error('Error adding team:', error);
-      alert('Failed to add team. Check console for details.');
-    } else {
-      setFormData({ name: '', sport: 'Basketball', season_start: '', season_end: '' });
-      setShowAddForm(false);
-      loadTeams();
+    try {
+      const { data, error } = await supabase
+        .from('teams')
+        .insert([formData])
+        .select();
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        alert(`Failed to add team: ${error.message}`);
+      } else {
+        console.log('Team added successfully:', data);
+        setFormData({ name: '', sport: 'Basketball', season_start: '', season_end: '' });
+        setShowAddForm(false);
+        await loadTeams();
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      alert('An unexpected error occurred');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -160,9 +173,10 @@ export default function LandingPage() {
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
+                disabled={submitting}
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
               >
-                Create Team
+                {submitting ? 'Creating...' : 'Create Team'}
               </button>
             </form>
           </div>
