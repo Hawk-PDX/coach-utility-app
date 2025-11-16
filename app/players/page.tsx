@@ -49,6 +49,7 @@ function PlayersContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     
     if (!teamId) return;
     
@@ -60,6 +61,7 @@ function PlayersContent() {
     });
 
     if (error) {
+      console.error('Error adding player:', error);
       alert('Error adding player: ' + error.message);
     } else {
       setFormData({ name: '', jersey_number: '', position: '' });
@@ -109,8 +111,9 @@ function PlayersContent() {
             {team && <p className="text-gray-600">{team.name}</p>}
           </div>
           <button
+            type="button"
             onClick={() => setShowForm(!showForm)}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 active:scale-95 transition"
           >
             {showForm ? 'Cancel' : '+ Add Player'}
           </button>
@@ -152,7 +155,7 @@ function PlayersContent() {
               </div>
               <button
                 type="submit"
-                className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700"
+                className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 active:scale-95 transition"
               >
                 Add Player
               </button>
@@ -171,8 +174,9 @@ function PlayersContent() {
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => deletePlayer(player.id, player.name)}
-                className="text-red-600 hover:text-red-700 px-4 py-2"
+                className="text-red-600 hover:text-red-700 px-4 py-2 active:scale-95 transition"
               >
                 Delete
               </button>

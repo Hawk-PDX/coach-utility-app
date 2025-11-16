@@ -35,6 +35,7 @@ export default function LandingPage() {
 
   const handleAddTeam = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     
     const { error } = await supabase
       .from('teams')
@@ -42,7 +43,7 @@ export default function LandingPage() {
     
     if (error) {
       console.error('Error adding team:', error);
-      alert('Failed to add team');
+      alert('Failed to add team. Check console for details.');
     } else {
       setFormData({ name: '', sport: 'Basketball', season_start: '', season_end: '' });
       setShowAddForm(false);
@@ -84,8 +85,9 @@ export default function LandingPage() {
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900">Your Teams</h2>
           <button
+            type="button"
             onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition"
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition active:scale-95"
           >
             {showAddForm ? 'Cancel' : '+ Add Team'}
           </button>

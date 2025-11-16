@@ -264,8 +264,9 @@ function CoachContent() {
             </div>
             {!currentGame && (
               <button
+                type="button"
                 onClick={() => setShowGameForm(!showGameForm)}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700"
+                className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 active:scale-95 transition"
               >
                 Start Game
               </button>
@@ -293,14 +294,16 @@ function CoachContent() {
               />
               <div className="flex gap-2">
                 <button
+                  type="button"
                   onClick={createNewGame}
-                  className="flex-1 bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700"
+                  className="flex-1 bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 active:scale-95 transition"
                 >
                   Start Tracking
                 </button>
                 <button
+                  type="button"
                   onClick={() => setShowGameForm(false)}
-                  className="px-6 bg-gray-200 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-300"
+                  className="px-6 bg-gray-200 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-300 active:scale-95 transition"
                 >
                   Cancel
                 </button>
@@ -382,6 +385,7 @@ function CoachContent() {
                   <div className="grid grid-cols-4 gap-2">
                     <div className="space-y-1">
                       <button
+                        type="button"
                         onClick={() => trackPlayTime(player.id)}
                         className="w-full bg-green-600 text-white py-2 px-2 rounded-lg text-sm font-medium hover:bg-green-700 active:scale-95 transition"
                       >
@@ -389,8 +393,9 @@ function CoachContent() {
                       </button>
                       {stats.shifts > 0 && (
                         <button
+                          type="button"
                           onClick={() => adjustStat(player.id, 'shifts', -1)}
-                          className="w-full bg-green-100 text-green-700 py-1 px-2 rounded text-sm hover:bg-green-200"
+                          className="w-full bg-green-100 text-green-700 py-1 px-2 rounded text-sm hover:bg-green-200 active:scale-95 transition"
                         >
                           −
                         </button>
@@ -398,6 +403,7 @@ function CoachContent() {
                     </div>
                     <div className="space-y-1">
                       <button
+                        type="button"
                         onClick={() => quickStat(player.id, 'points')}
                         className="w-full bg-blue-600 text-white py-2 px-2 rounded-lg text-sm font-medium hover:bg-blue-700 active:scale-95 transition"
                       >
@@ -405,8 +411,9 @@ function CoachContent() {
                       </button>
                       {stats.points > 0 && (
                         <button
+                          type="button"
                           onClick={() => adjustStat(player.id, 'points', -1)}
-                          className="w-full bg-blue-100 text-blue-700 py-1 px-2 rounded text-sm hover:bg-blue-200"
+                          className="w-full bg-blue-100 text-blue-700 py-1 px-2 rounded text-sm hover:bg-blue-200 active:scale-95 transition"
                         >
                           −
                         </button>
@@ -414,6 +421,7 @@ function CoachContent() {
                     </div>
                     <div className="space-y-1">
                       <button
+                        type="button"
                         onClick={() => quickStat(player.id, 'assists')}
                         className="w-full bg-purple-600 text-white py-2 px-2 rounded-lg text-sm font-medium hover:bg-purple-700 active:scale-95 transition"
                       >
@@ -421,8 +429,9 @@ function CoachContent() {
                       </button>
                       {stats.assists > 0 && (
                         <button
+                          type="button"
                           onClick={() => adjustStat(player.id, 'assists', -1)}
-                          className="w-full bg-purple-100 text-purple-700 py-1 px-2 rounded text-sm hover:bg-purple-200"
+                          className="w-full bg-purple-100 text-purple-700 py-1 px-2 rounded text-sm hover:bg-purple-200 active:scale-95 transition"
                         >
                           −
                         </button>
@@ -430,6 +439,7 @@ function CoachContent() {
                     </div>
                     <div className="space-y-1">
                       <button
+                        type="button"
                         onClick={() => quickStat(player.id, 'rebounds')}
                         className="w-full bg-orange-600 text-white py-2 px-2 rounded-lg text-sm font-medium hover:bg-orange-700 active:scale-95 transition"
                       >
@@ -437,8 +447,9 @@ function CoachContent() {
                       </button>
                       {stats.rebounds > 0 && (
                         <button
+                          type="button"
                           onClick={() => adjustStat(player.id, 'rebounds', -1)}
-                          className="w-full bg-orange-100 text-orange-700 py-1 px-2 rounded text-sm hover:bg-orange-200"
+                          className="w-full bg-orange-100 text-orange-700 py-1 px-2 rounded text-sm hover:bg-orange-200 active:scale-95 transition"
                         >
                           −
                         </button>
