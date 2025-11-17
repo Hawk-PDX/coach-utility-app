@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase, type Player, type Team, type Game } from '@/lib/supabase';
 
@@ -14,6 +14,7 @@ interface PlayerStats {
 
 function CoachContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const teamId = searchParams.get('team');
   
   const [team, setTeam] = useState<Team | null>(null);
@@ -229,6 +230,12 @@ function CoachContent() {
     }
   };
 
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/');
+    router.refresh();
+  };
+
   if (!teamId) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -254,9 +261,18 @@ function CoachContent() {
     <main className="min-h-screen p-4 md:p-8 bg-gray-50">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
-          <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium text-sm mb-2 inline-block">
-            ← Back to Teams
-          </Link>
+          <div className="flex justify-between items-center mb-2">
+            <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-block">
+              ← Back to Teams
+            </Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="text-red-600 hover:text-red-700 font-medium text-sm"
+            >
+              Logout
+            </button>
+          </div>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">{team?.name || 'Coach Utility'}</h1>

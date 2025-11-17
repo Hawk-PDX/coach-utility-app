@@ -82,7 +82,7 @@ export default function LandingPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16 px-4">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16 px-4 landing-header">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-bold mb-4">
             Coach Utility App
