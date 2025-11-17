@@ -12,6 +12,7 @@ function PlayersContent() {
   const [team, setTeam] = useState<Team | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     jersey_number: '',
@@ -53,21 +54,60 @@ function PlayersContent() {
     
     if (!teamId) return;
     
-    const { error } = await supabase.from('players').insert({
-      team_id: teamId,
-      name: formData.name,
-      jersey_number: formData.jersey_number ? parseInt(formData.jersey_number) : null,
-      position: formData.position || null,
-    });
+    if (editingPlayer) {
+      // Update existing player
+      const { error } = await supabase
+        .from('players')
+        .update({
+          name: formData.name,
+          jersey_number: formData.jersey_number ? parseInt(formData.jersey_number) : null,
+          position: formData.position || null,
+        })
+        .eq('id', editingPlayer.id);
 
-    if (error) {
-      console.error('Error adding player:', error);
-      alert('Error adding player: ' + error.message);
+      if (error) {
+        console.error('Error updating player:', error);
+        alert('Error updating player: ' + error.message);
+      } else {
+        setFormData({ name: '', jersey_number: '', position: '' });
+        setShowForm(false);
+        setEditingPlayer(null);
+        loadTeamAndPlayers();
+      }
     } else {
-      setFormData({ name: '', jersey_number: '', position: '' });
-      setShowForm(false);
-      loadTeamAndPlayers();
+      // Insert new player
+      const { error } = await supabase.from('players').insert({
+        team_id: teamId,
+        name: formData.name,
+        jersey_number: formData.jersey_number ? parseInt(formData.jersey_number) : null,
+        position: formData.position || null,
+      });
+
+      if (error) {
+        console.error('Error adding player:', error);
+        alert('Error adding player: ' + error.message);
+      } else {
+        setFormData({ name: '', jersey_number: '', position: '' });
+        setShowForm(false);
+        loadTeamAndPlayers();
+      }
     }
+  };
+
+  const editPlayer = (player: Player) => {
+    setEditingPlayer(player);
+    setFormData({
+      name: player.name,
+      jersey_number: player.jersey_number?.toString() || '',
+      position: player.position || '',
+    });
+    setShowForm(true);
+  };
+
+  const cancelEdit = () => {
+    setEditingPlayer(null);
+    setFormData({ name: '', jersey_number: '', position: '' });
+    setShowForm(false);
   };
 
   const deletePlayer = async (id: string, name: string) => {
@@ -112,7 +152,13 @@ function PlayersContent() {
           </div>
           <button
             type="button"
-            onClick={() => setShowForm(!showForm)}
+            onClick={() => {
+              if (showForm) {
+                cancelEdit();
+              } else {
+                setShowForm(true);
+              }
+            }}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 active:scale-95 transition"
           >
             {showForm ? 'Cancel' : '+ Add Player'}
@@ -121,6 +167,9 @@ function PlayersContent() {
 
         {showForm && (
           <form onSubmit={handleSubmit} className="bg-white border rounded-lg p-6 mb-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">
+              {editingPlayer ? 'Edit Player' : 'Add New Player'}
+            </h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Name *</label>
@@ -157,7 +206,7 @@ function PlayersContent() {
                 type="submit"
                 className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 active:scale-95 transition"
               >
-                Add Player
+                {editingPlayer ? 'Update Player' : 'Add Player'}
               </button>
             </div>
           </form>
@@ -173,13 +222,22 @@ function PlayersContent() {
                   {player.position && ` • ${player.position}`}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => deletePlayer(player.id, player.name)}
-                className="text-red-600 hover:text-red-700 px-4 py-2 active:scale-95 transition"
-              >
-                Delete
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => editPlayer(player)}
+                  className="text-blue-600 hover:text-blue-700 px-4 py-2 active:scale-95 transition"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => deletePlayer(player.id, player.name)}
+                  className="text-red-600 hover:text-red-700 px-4 py-2 active:scale-95 transition"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>

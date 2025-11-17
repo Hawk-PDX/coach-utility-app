@@ -43,3 +43,6 @@ next-env.d.ts
 
 # local history
 .history/
+
+# migration docs
+MIGRATION_GUIDE.md

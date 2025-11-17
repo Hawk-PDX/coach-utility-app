@@ -77,3 +77,12 @@ CREATE TRIGGER update_players_updated_at BEFORE
 UPDATE ON players FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_teams_updated_at BEFORE
 UPDATE ON teams FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Grant permissions to anon and authenticated roles
+GRANT ALL ON teams TO anon, authenticated;
+GRANT ALL ON games TO anon, authenticated;
+GRANT ALL ON players TO anon, authenticated;
+GRANT ALL ON play_time TO anon, authenticated;
+GRANT ALL ON game_stats TO anon, authenticated;
+GRANT ALL ON medals TO anon, authenticated;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
