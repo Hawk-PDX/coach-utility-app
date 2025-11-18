@@ -23,6 +23,10 @@ export type Game = {
   opponent: string | null;
   location: string | null;
   notes: string | null;
+  our_score: number | null;
+  opponent_score: number | null;
+  is_completed: boolean;
+  value_of_week: string | null;
   created_at: string;
 };
 
@@ -64,5 +68,35 @@ export type Medal = {
   season_year: number;
   awarded_date: string;
   notes: string | null;
+  created_at: string;
+};
+
+export type SnackSignup = {
+  id: string;
+  game_id: string;
+  parent_name: string;
+  parent_email: string | null;
+  items_bringing: string | null;
+  created_at: string;
+};
+
+export type TeamNews = {
+  id: string;
+  team_id: string;
+  title: string;
+  content: string;
+  posted_by: string | null;
+  is_pinned: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PlayerRecognition = {
+  id: string;
+  player_id: string;
+  team_id: string;
+  recognition_type: string;
+  description: string | null;
+  recognition_date: string;
   created_at: string;
 };
