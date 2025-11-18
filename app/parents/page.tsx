@@ -294,6 +294,16 @@ function ParentsContent() {
               }`}
             >
               News
+              <p>Hey all, we played a solid game this past week. Especially around half-time... our kids decided to start passing which opened up a lot of scoring opportunities! Our main focus, as coaches, is to manifest a passion for which ever sport we are currently taking part in.
+                Play time and inclusion is a major focus as well as making the most out of our practice time, prior to game start.
+                Each week, we will provide all teammates, 'Value of the Week', these values are important to the the progession of our kids and seek to establish a baseline and passion for the sport, as well as an environment where each player feels as if they 'bring something to the table'.
+                As we sit now, we are only a few games in to the season and us coaches have noticed a significant jump in skill levels across the board. 
+                Not all activities come natural and our goal is to provide EVERY player a solid footing from which to grow upon. Illiciting a passion for the sport and generating a player's drive to continue to work on fundamentals. 
+                We understand that not all of our boys have equivalent amount of practice and we will do our best to find and perpetuate anyhing they may need, individually.
+                Thank you all for allowing us to work with your kids! This is not a job for us coaches, it's a love for the kids and assisting them in staying active.
+
+                If we are missing anything, we'd love to hear from you! We will go out of our way to heed suggestions. :)
+              </p>
             </button>
             <button
               onClick={() => setActiveTab('stats')}
