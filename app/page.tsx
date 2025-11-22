@@ -82,12 +82,12 @@ export default function LandingPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16 px-">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">
+      <div className="bg-gradient-to-r from-black-600 to-red-800 text-white py-16 px-">
+        <div className="max-w-6xl mx-auto pl-32">
+          <h1 className="pl-4 text-5xl md:text-6xl font-bold mb-4">
             Coach Utility App
           </h1>
-          <p className="text-xl md:text-2xl text-blue-100">
+          <p className="pl-4 text-xl md:text-2xl text-blue-100">
             Managing your teams, one season at a time
           </p>
         </div>
@@ -96,7 +96,7 @@ export default function LandingPage() {
       {/* Teams Section */}
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">Your Teams</h2>
+          <h2 className="justify-center pl-4 text-3xl font-bold text-gray-900">Your Teams</h2>
           <button
             type="button"
             onClick={() => setShowAddForm(!showAddForm)}
