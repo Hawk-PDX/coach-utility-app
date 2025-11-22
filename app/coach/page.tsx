@@ -28,25 +28,6 @@ function CoachContent() {
     location: ''
   });
 
-  useEffect(() => {
-    if (teamId) {
-      loadTeamAndPlayers();
-      loadOrCreateTodaysGame();
-    }
-  }, [teamId]);
-
-  useEffect(() => {
-    if (currentGame) {
-      loadGameStats();
-      
-      const pollInterval = setInterval(() => {
-        loadGameStats();
-      }, 3000);
-      
-      return () => clearInterval(pollInterval);
-    }
-  }, [currentGame]);
-
   const loadTeamAndPlayers = async () => {
     if (!teamId) return;
     
@@ -146,6 +127,25 @@ function CoachContent() {
     setPlayerStats(stats);
   };
 
+  useEffect(() => {
+    if (teamId) {
+      loadTeamAndPlayers();
+      loadOrCreateTodaysGame();
+    }
+  }, [teamId, loadTeamAndPlayers, loadOrCreateTodaysGame]);
+
+  useEffect(() => {
+    if (currentGame) {
+      loadGameStats();
+      
+      const pollInterval = setInterval(() => {
+        loadGameStats();
+      }, 3000);
+      
+      return () => clearInterval(pollInterval);
+    }
+  }, [currentGame, loadGameStats]);
+
   const trackPlayTime = async (playerId: string) => {
     if (!currentGame) return;
     
@@ -241,7 +241,7 @@ function CoachContent() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
           <p className="text-xl mb-4">No team selected</p>
-          <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">
+          <Link href="/" className="text-blue-400 hover:text-blue-300 font-medium">
             ← Back to Teams
           </Link>
         </div>
@@ -258,11 +258,11 @@ function CoachContent() {
   }
 
   return (
-    <main className="min-h-screen p-4 md:p-8 bg-gray-50">
+    <main className="min-h-screen p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
-            <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-block">
+            <Link href="/" className="text-blue-400 hover:text-blue-300 font-medium text-sm inline-block">
               ← Back to Teams
             </Link>
             <button
@@ -275,8 +275,8 @@ function CoachContent() {
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">{team?.name || 'Coach Utility'}</h1>
-              {team && <p className="text-gray-600">{team.sport} • Coach View</p>}
+              <h1 className="text-3xl font-bold text-white">{team?.name || 'Coach Utility'}</h1>
+              {team && <p className="text-gray-400">{team.sport} • Coach View</p>}
             </div>
             {!currentGame && (
               <button
@@ -291,22 +291,22 @@ function CoachContent() {
         </div>
         
         {showGameForm && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h3 className="text-lg font-semibold mb-4">New Game</h3>
+          <div className="bg-gray-800 border border-gray-600 rounded-lg shadow-md p-6 mb-6">
+            <h3 className="text-lg font-semibold mb-4 text-white">New Game</h3>
             <div className="space-y-3">
               <input
                 type="text"
                 placeholder="Opponent (optional)"
                 value={gameFormData.opponent}
                 onChange={(e) => setGameFormData({ ...gameFormData, opponent: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-red-500"
               />
               <input
                 type="text"
                 placeholder="Location (optional)"
                 value={gameFormData.location}
                 onChange={(e) => setGameFormData({ ...gameFormData, location: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-red-500"
               />
               <div className="flex gap-2">
                 <button
@@ -319,7 +319,7 @@ function CoachContent() {
                 <button
                   type="button"
                   onClick={() => setShowGameForm(false)}
-                  className="px-6 bg-gray-200 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-300 active:scale-95 transition"
+                  className="px-6 bg-gray-600 text-white py-2 rounded-lg font-medium hover:bg-gray-500 active:scale-95 transition"
                 >
                   Cancel
                 </button>
@@ -329,18 +329,18 @@ function CoachContent() {
         )}
         
         {currentGame && (
-          <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+          <div className="bg-gray-800 border border-gray-600 rounded-lg shadow-md p-4 mb-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-lg">Live Game</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-semibold text-lg text-white">Live Game</h3>
+                <p className="text-sm text-gray-400">
                   {currentGame.opponent && `vs ${currentGame.opponent}`}
                   {currentGame.opponent && currentGame.location && ' • '}
                   {currentGame.location}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-400">
                   {new Date(currentGame.game_date).toLocaleDateString()}
                 </p>
               </div>
@@ -349,15 +349,15 @@ function CoachContent() {
         )}
         
         {!currentGame && !showGameForm && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-            <p className="text-lg mb-4">Start a game to begin tracking stats</p>
+          <div className="bg-gray-800 border border-blue-600 rounded-lg p-6 text-center">
+            <p className="text-lg mb-4 text-gray-300">Start a game to begin tracking stats</p>
           </div>
         )}
         
         {players.length === 0 ? (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-2">Get Started</h2>
-            <p className="mb-4">Add players to your roster to start tracking.</p>
+          <div className="bg-gray-800 border border-yellow-600 rounded-lg p-6">
+            <h2 className="text-xl font-semibold mb-2 text-white">Get Started</h2>
+            <p className="mb-4 text-gray-300">Add players to your roster to start tracking.</p>
             <a 
               href={`/players?team=${teamId}`}
               className="bg-blue-600 text-white px-6 py-3 rounded-lg inline-block hover:bg-blue-700"
@@ -370,30 +370,30 @@ function CoachContent() {
             {players.map((player) => {
               const stats = playerStats[player.id] || { shifts: 0, points: 0, assists: 0, rebounds: 0 };
               return (
-                <div key={player.id} className="bg-white rounded-lg p-4 shadow-sm">
+                <div key={player.id} className="bg-gray-800 border border-gray-600 rounded-lg p-4 shadow-sm">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h3 className="text-lg font-bold">{player.name}</h3>
-                      <p className="text-sm text-gray-600">
+                      <h3 className="text-lg font-bold text-white">{player.name}</h3>
+                      <p className="text-sm text-gray-400">
                         #{player.jersey_number} {player.position && `• ${player.position}`}
                       </p>
                     </div>
                     <div className="flex gap-3 text-center">
                       <div className="min-w-[60px]">
-                        <div className="text-2xl font-bold text-green-600">{stats.shifts}</div>
-                        <div className="text-xs text-gray-500">Shifts</div>
+                        <div className="text-2xl font-bold text-green-400">{stats.shifts}</div>
+                        <div className="text-xs text-gray-400">Shifts</div>
                       </div>
                       <div className="min-w-[60px]">
-                        <div className="text-2xl font-bold text-blue-600">{stats.points}</div>
-                        <div className="text-xs text-gray-500">Points</div>
+                        <div className="text-2xl font-bold text-blue-400">{stats.points}</div>
+                        <div className="text-xs text-gray-400">Points</div>
                       </div>
                       <div className="min-w-[60px]">
-                        <div className="text-2xl font-bold text-purple-600">{stats.assists}</div>
-                        <div className="text-xs text-gray-500">Assists</div>
+                        <div className="text-2xl font-bold text-purple-400">{stats.assists}</div>
+                        <div className="text-xs text-gray-400">Assists</div>
                       </div>
                       <div className="min-w-[60px]">
-                        <div className="text-2xl font-bold text-orange-600">{stats.rebounds}</div>
-                        <div className="text-xs text-gray-500">Reb</div>
+                        <div className="text-2xl font-bold text-orange-400">{stats.rebounds}</div>
+                        <div className="text-xs text-gray-400">Reb</div>
                       </div>
                     </div>
                   </div>

@@ -41,8 +41,12 @@ yarn-error.log*
 next-env.d.ts
 .env*.local
 
-# local history
+# local history and dev notes
 .history/
 
 # migration docs
 MIGRATION_GUIDE.md
+
+# dev notes
+TODO.md
+DEPLOYMENT.md

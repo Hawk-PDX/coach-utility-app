@@ -225,19 +225,19 @@ function ParentsContent() {
   }
 
   return (
-    <main className="min-h-screen p-4 md:p-8 bg-slate-50">
+    <main className="min-h-screen p-4 md:p-8 bg-gray-900">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <Link 
+          <Link
             href="/"
-            className="text-blue-600 hover:text-blue-700 font-medium text-sm mb-2 inline-block"
+            className="text-red-400 hover:text-red-300 font-medium text-sm mb-2 inline-block"
           >
             ← Back to Teams
           </Link>
-          <h1 className="text-4xl font-bold text-gray-900">{team?.name || 'Parent Portal'}</h1>
+          <h1 className="text-4xl font-bold text-white">{team?.name || 'Parent Portal'}</h1>
           {team && (
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-400 mt-1">
               {team.sport} • {formatDateRange(team.season_start, team.season_end)}
             </p>
           )}
@@ -263,14 +263,14 @@ function ParentsContent() {
         )}
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-lg shadow-sm mb-6 overflow-hidden">
-          <div className="flex border-b">
+        <div className="bg-gray-800 rounded-lg shadow-sm mb-6 overflow-hidden">
+          <div className="flex border-b border-gray-600">
             <button
               onClick={() => setActiveTab('roster')}
               className={`flex-1 px-6 py-3 font-medium transition ${
                 activeTab === 'roster'
-                  ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-red-900 text-red-300 border-b-2 border-red-600'
+                  : 'text-gray-400 hover:bg-gray-700'
               }`}
             >
               Roster
@@ -279,8 +279,8 @@ function ParentsContent() {
               onClick={() => setActiveTab('schedule')}
               className={`flex-1 px-6 py-3 font-medium transition ${
                 activeTab === 'schedule'
-                  ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-red-900 text-red-300 border-b-2 border-red-600'
+                  : 'text-gray-400 hover:bg-gray-700'
               }`}
             >
               Schedule
@@ -289,8 +289,8 @@ function ParentsContent() {
               onClick={() => setActiveTab('news')}
               className={`flex-1 px-6 py-3 font-medium transition ${
                 activeTab === 'news'
-                  ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-red-900 text-red-300 border-b-2 border-red-600'
+                  : 'text-gray-400 hover:bg-gray-700'
               }`}
             >
               News
@@ -299,8 +299,8 @@ function ParentsContent() {
               onClick={() => setActiveTab('stats')}
               className={`flex-1 px-6 py-3 font-medium transition ${
                 activeTab === 'stats'
-                  ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-red-900 text-red-300 border-b-2 border-red-600'
+                  : 'text-gray-400 hover:bg-gray-700'
               }`}
             >
               Stats
@@ -342,23 +342,23 @@ function ParentsContent() {
         {activeTab === 'schedule' && (
           <div className="space-y-6">
             {/* Upcoming Games */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-2xl font-bold mb-4">Upcoming Games</h2>
+            <div className="bg-gray-800 rounded-lg shadow-sm p-6">
+              <h2 className="text-2xl font-bold mb-4 text-white">Upcoming Games</h2>
               {upcomingGames.length === 0 ? (
-                <p className="text-gray-600">No upcoming games scheduled.</p>
+                <p className="text-gray-400">No upcoming games scheduled.</p>
               ) : (
                 <div className="space-y-4">
                   {upcomingGames.map((game) => (
-                    <div key={game.id} className="border rounded-lg p-4">
+                    <div key={game.id} className="bg-gray-700 border border-gray-600 rounded-lg p-4">
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <p className="text-sm text-gray-600">{formatGameDate(game.game_date)}</p>
-                          <h3 className="font-semibold text-lg">vs {game.opponent || 'TBD'}</h3>
+                          <p className="text-sm text-gray-400">{formatGameDate(game.game_date)}</p>
+                          <h3 className="font-semibold text-lg text-white">vs {game.opponent || 'TBD'}</h3>
                           {game.location && (
-                            <p className="text-sm text-gray-600">📍 {game.location}</p>
+                            <p className="text-sm text-gray-400">📍 {game.location}</p>
                           )}
                           {game.value_of_week && (
-                            <div className="mt-2 inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                            <div className="mt-2 inline-block bg-red-900 text-red-300 px-3 py-1 rounded-full text-sm font-medium">
                               ⭐ Value of the Week: {game.value_of_week}
                             </div>
                           )}

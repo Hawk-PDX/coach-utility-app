@@ -41,12 +41,6 @@ function ManageContent() {
 
   const [valueOfWeekForm, setValueOfWeekForm] = useState<{[key: string]: string}>({});
 
-  useEffect(() => {
-    if (teamId) {
-      loadAllData();
-    }
-  }, [teamId]);
-
   const loadAllData = async () => {
     if (!teamId) return;
     await Promise.all([
@@ -58,6 +52,12 @@ function ManageContent() {
     ]);
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (teamId) {
+      loadAllData();
+    }
+  }, [teamId, loadAllData]);
 
   const loadTeam = async () => {
     if (!teamId) return;
@@ -260,7 +260,7 @@ function ManageContent() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
           <p className="text-xl mb-4">No team selected</p>
-          <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">
+          <Link href="/" className="text-blue-400 hover:text-blue-300 font-medium">
             ← Back to Teams
           </Link>
         </div>
@@ -277,29 +277,29 @@ function ManageContent() {
   }
 
   return (
-    <main className="min-h-screen p-4 md:p-8 bg-slate-50">
+    <main className="min-h-screen p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <Link 
+          <Link
             href={`/coach?team=${teamId}`}
-            className="text-blue-600 hover:text-blue-700 font-medium text-sm mb-2 inline-block"
+            className="text-blue-400 hover:text-blue-300 font-medium text-sm mb-2 inline-block"
           >
             ← Back to Coach Dashboard
           </Link>
-          <h1 className="text-4xl font-bold text-gray-900">Team Management</h1>
-          <p className="text-gray-600 mt-1">{team?.name}</p>
+          <h1 className="text-4xl font-bold text-white">Team Management</h1>
+          <p className="text-gray-400 mt-1">{team?.name}</p>
         </div>
 
         {/* Section Navigation */}
-        <div className="bg-white rounded-lg shadow-sm mb-6 overflow-hidden">
-          <div className="flex border-b">
+        <div className="bg-gray-800 border border-gray-600 rounded-lg shadow-sm mb-6 overflow-hidden">
+          <div className="flex border-b border-gray-600">
             <button
               onClick={() => setActiveSection('news')}
               className={`flex-1 px-6 py-3 font-medium transition ${
                 activeSection === 'news'
-                  ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-gray-700 text-red-400 border-b-2 border-red-500'
+                  : 'text-gray-400 hover:bg-gray-700'
               }`}
             >
               Team News
@@ -308,8 +308,8 @@ function ManageContent() {
               onClick={() => setActiveSection('recognition')}
               className={`flex-1 px-6 py-3 font-medium transition ${
                 activeSection === 'recognition'
-                  ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-gray-700 text-red-400 border-b-2 border-red-500'
+                  : 'text-gray-400 hover:bg-gray-700'
               }`}
             >
               Player Recognition
@@ -318,8 +318,8 @@ function ManageContent() {
               onClick={() => setActiveSection('results')}
               className={`flex-1 px-6 py-3 font-medium transition ${
                 activeSection === 'results'
-                  ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-gray-700 text-red-400 border-b-2 border-red-500'
+                  : 'text-gray-400 hover:bg-gray-700'
               }`}
             >
               Game Results
@@ -328,8 +328,8 @@ function ManageContent() {
               onClick={() => setActiveSection('values')}
               className={`flex-1 px-6 py-3 font-medium transition ${
                 activeSection === 'values'
-                  ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  ? 'bg-gray-700 text-red-400 border-b-2 border-red-500'
+                  : 'text-gray-400 hover:bg-gray-700'
               }`}
             >
               Values of Week
@@ -339,47 +339,47 @@ function ManageContent() {
 
         {/* Team News Section */}
         {activeSection === 'news' && (
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-gray-800 border border-gray-600 rounded-lg shadow-sm p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Team News</h2>
+              <h2 className="text-2xl font-bold text-white">Team News</h2>
               <button
                 onClick={() => setShowNewsForm(!showNewsForm)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
               >
                 {showNewsForm ? 'Cancel' : '+ Add News'}
               </button>
             </div>
 
             {showNewsForm && (
-              <form onSubmit={handleAddNews} className="bg-gray-50 rounded-lg p-4 mb-6 space-y-4">
+              <form onSubmit={handleAddNews} className="bg-gray-700 border border-gray-600 rounded-lg p-4 mb-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Title *</label>
+                  <label className="block text-sm font-medium mb-1 text-gray-300">Title *</label>
                   <input
                     type="text"
                     required
                     value={newsForm.title}
                     onChange={(e) => setNewsForm({ ...newsForm, title: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 bg-gray-600 text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Content *</label>
+                  <label className="block text-sm font-medium mb-1 text-gray-300">Content *</label>
                   <textarea
                     required
                     rows={4}
                     value={newsForm.content}
                     onChange={(e) => setNewsForm({ ...newsForm, content: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 bg-gray-600 text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Posted By (optional)</label>
+                  <label className="block text-sm font-medium mb-1 text-gray-300">Posted By (optional)</label>
                   <input
                     type="text"
                     value={newsForm.postedBy}
                     onChange={(e) => setNewsForm({ ...newsForm, postedBy: e.target.value })}
                     placeholder="Coach Name"
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 bg-gray-600 text-white placeholder-gray-400"
                   />
                 </div>
                 <div className="flex items-center">
@@ -390,13 +390,13 @@ function ManageContent() {
                     onChange={(e) => setNewsForm({ ...newsForm, isPinned: e.target.checked })}
                     className="mr-2"
                   />
-                  <label htmlFor="pinned" className="text-sm font-medium">
+                  <label htmlFor="pinned" className="text-sm font-medium text-gray-300">
                     Pin to top of parent portal
                   </label>
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+                  className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700"
                 >
                   Post News
                 </button>
@@ -404,32 +404,32 @@ function ManageContent() {
             )}
 
             {teamNews.length === 0 ? (
-              <p className="text-gray-600 text-center py-8">No news items yet.</p>
+              <p className="text-gray-400 text-center py-8">No news items yet.</p>
             ) : (
               <div className="space-y-4">
                 {teamNews.map((news) => (
-                  <div key={news.id} className="border rounded-lg p-4">
+                  <div key={news.id} className="border border-gray-600 rounded-lg p-4 bg-gray-700">
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold text-lg">
+                      <h3 className="font-semibold text-lg text-white">
                         {news.is_pinned && '📌 '}{news.title}
                       </h3>
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleTogglePin(news.id, news.is_pinned)}
-                          className="text-xs text-blue-600 hover:text-blue-700"
+                          className="text-xs text-blue-400 hover:text-blue-300"
                         >
                           {news.is_pinned ? 'Unpin' : 'Pin'}
                         </button>
                         <button
                           onClick={() => handleDeleteNews(news.id)}
-                          className="text-xs text-red-600 hover:text-red-700"
+                          className="text-xs text-red-400 hover:text-red-300"
                         >
                           Delete
                         </button>
                       </div>
                     </div>
-                    <p className="text-gray-700 whitespace-pre-wrap mb-2">{news.content}</p>
-                    <div className="flex justify-between text-xs text-gray-500">
+                    <p className="text-gray-300 whitespace-pre-wrap mb-2">{news.content}</p>
+                    <div className="flex justify-between text-xs text-gray-400">
                       <span>{news.posted_by && `Posted by ${news.posted_by}`}</span>
                       <span>{formatDate(news.created_at)}</span>
                     </div>
@@ -442,12 +442,12 @@ function ManageContent() {
 
         {/* Player Recognition Section */}
         {activeSection === 'recognition' && (
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-gray-800 border border-gray-600 rounded-lg shadow-sm p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Player Recognition</h2>
+              <h2 className="text-2xl font-bold text-white">Player Recognition</h2>
               <button
                 onClick={() => setShowRecognitionForm(!showRecognitionForm)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
               >
                 {showRecognitionForm ? 'Cancel' : '+ Add Recognition'}
               </button>

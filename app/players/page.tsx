@@ -19,26 +19,20 @@ function PlayersContent() {
     position: '',
   });
 
-  useEffect(() => {
-    if (teamId) {
-      loadTeamAndPlayers();
-    }
-  }, [teamId]);
-
   const loadTeamAndPlayers = async () => {
     if (!teamId) return;
-    
+
     // Load team info
     const { data: teamData } = await supabase
       .from('teams')
       .select('*')
       .eq('id', teamId)
       .single();
-    
+
     if (teamData) {
       setTeam(teamData);
     }
-    
+
     // Load players for this team
     const { data } = await supabase
       .from('players')
@@ -47,6 +41,12 @@ function PlayersContent() {
       .order('name');
     setPlayers(data || []);
   };
+
+  useEffect(() => {
+    if (teamId) {
+      loadTeamAndPlayers();
+    }
+  }, [teamId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,7 +129,7 @@ function PlayersContent() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
           <p className="text-xl mb-4">No team selected</p>
-          <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">
+          <Link href="/" className="text-blue-400 hover:text-blue-300 font-medium">
             ← Back to Teams
           </Link>
         </div>
@@ -141,14 +141,14 @@ function PlayersContent() {
     <main className="min-h-screen p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-2">
-          <Link href={`/coach?team=${teamId}`} className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-block">
+          <Link href={`/coach?team=${teamId}`} className="text-blue-400 hover:text-blue-300 font-medium text-sm inline-block">
             ← Back to Coach
           </Link>
         </div>
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Players</h1>
-            {team && <p className="text-gray-600">{team.name}</p>}
+            <h1 className="text-3xl font-bold text-white">Players</h1>
+            {team && <p className="text-gray-400">{team.name}</p>}
           </div>
           <button
             type="button"
@@ -159,52 +159,52 @@ function PlayersContent() {
                 setShowForm(true);
               }
             }}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 active:scale-95 transition"
+            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 active:scale-95 transition"
           >
             {showForm ? 'Cancel' : '+ Add Player'}
           </button>
         </div>
 
         {showForm && (
-          <form onSubmit={handleSubmit} className="bg-white border rounded-lg p-6 mb-6 shadow-sm">
-            <h2 className="text-lg font-semibold mb-4">
+          <form onSubmit={handleSubmit} className="bg-gray-800 border border-gray-600 rounded-lg p-6 mb-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4 text-white">
               {editingPlayer ? 'Edit Player' : 'Add New Player'}
             </h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Name *</label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Name *</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full border rounded-lg px-4 py-2"
+                  className="w-full border border-gray-600 rounded-lg px-4 py-2 bg-gray-700 text-white focus:ring-2 focus:ring-red-500"
                   placeholder="Player name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Jersey Number</label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Jersey Number</label>
                 <input
                   type="number"
                   value={formData.jersey_number}
                   onChange={(e) => setFormData({ ...formData, jersey_number: e.target.value })}
-                  className="w-full border rounded-lg px-4 py-2"
+                  className="w-full border border-gray-600 rounded-lg px-4 py-2 bg-gray-700 text-white focus:ring-2 focus:ring-red-500"
                   placeholder="00"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Position</label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Position</label>
                 <input
                   type="text"
                   value={formData.position}
                   onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                  className="w-full border rounded-lg px-4 py-2"
+                  className="w-full border border-gray-600 rounded-lg px-4 py-2 bg-gray-700 text-white focus:ring-2 focus:ring-red-500"
                   placeholder="e.g., Forward, Guard"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 active:scale-95 transition"
+                className="w-full bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 active:scale-95 transition"
               >
                 {editingPlayer ? 'Update Player' : 'Add Player'}
               </button>
@@ -214,10 +214,10 @@ function PlayersContent() {
 
         <div className="space-y-3">
           {players.map((player) => (
-            <div key={player.id} className="bg-white border rounded-lg p-4 shadow-sm flex justify-between items-center">
+            <div key={player.id} className="bg-gray-800 border border-gray-600 rounded-lg p-4 shadow-sm flex justify-between items-center">
               <div>
-                <h3 className="text-lg font-semibold">{player.name}</h3>
-                <p className="text-gray-600">
+                <h3 className="text-red-500 text-lg font-semibold">{player.name}</h3>
+                <p className="text-gray-400">
                   {player.jersey_number && `#${player.jersey_number}`}
                   {player.position && ` • ${player.position}`}
                 </p>
@@ -226,7 +226,7 @@ function PlayersContent() {
                 <button
                   type="button"
                   onClick={() => editPlayer(player)}
-                  className="text-blue-600 hover:text-blue-700 px-4 py-2 active:scale-95 transition"
+                  className="text-blue-400 hover:text-blue-300 px-4 py-2 active:scale-95 transition"
                 >
                   Edit
                 </button>
@@ -243,7 +243,7 @@ function PlayersContent() {
         </div>
 
         {players.length === 0 && !showForm && (
-          <p className="text-center text-gray-500 py-8">No players yet. Add your first player to get started!</p>
+          <p className="text-center text-gray-400 py-8">No players yet. Add your first player to get started!</p>
         )}
       </div>
     </main>

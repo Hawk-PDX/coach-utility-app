@@ -30,12 +30,6 @@ function GamesContent() {
   const [games, setGames] = useState<GameData[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (teamId) {
-      loadGames();
-    }
-  }, [teamId]);
-
   const loadGames = async () => {
     if (!teamId) return;
     
@@ -83,12 +77,18 @@ function GamesContent() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    if (teamId) {
+      loadGames();
+    }
+  }, [teamId, loadGames]);
+
   if (!teamId) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
           <p className="text-xl mb-4">No team selected</p>
-          <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">
+          <Link href="/" className="text-blue-400 hover:text-blue-300 font-medium">
             ← Back to Teams
           </Link>
         </div>
@@ -108,17 +108,17 @@ function GamesContent() {
     <main className="min-h-screen p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-2">
-          <Link href={`/coach?team=${teamId}`} className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-block">
+          <Link href={`/coach?team=${teamId}`} className="text-blue-400 hover:text-blue-300 font-medium text-sm inline-block">
             ← Back to Coach
           </Link>
         </div>
-        <h1 className="text-3xl font-bold mb-2">Game History</h1>
-        {team && <p className="text-gray-600 mb-6">{team.name}</p>}
+        <h1 className="text-3xl font-bold mb-2 text-white">Game History</h1>
+        {team && <p className="text-gray-400 mb-6">{team.name}</p>}
 
         <div className="space-y-6">
           {games.map((game) => (
-            <div key={game.date} className="bg-white border rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-semibold mb-4">
+            <div key={game.date} className="bg-gray-800 border border-gray-600 rounded-lg p-6 shadow-sm">
+              <h2 className="text-xl font-semibold mb-4 text-white">
                 {new Date(game.date).toLocaleDateString('en-US', {
                   weekday: 'long',
                   year: 'numeric',
@@ -129,26 +129,26 @@ function GamesContent() {
 
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-700">
                     <tr>
-                      <th className="text-left p-3 font-semibold">Player</th>
-                      <th className="text-center p-3 font-semibold">Points</th>
-                      <th className="text-center p-3 font-semibold">Assists</th>
-                      <th className="text-center p-3 font-semibold">Rebounds</th>
+                      <th className="text-left p-3 font-semibold text-white">Player</th>
+                      <th className="text-center p-3 font-semibold text-white">Points</th>
+                      <th className="text-center p-3 font-semibold text-white">Assists</th>
+                      <th className="text-center p-3 font-semibold text-white">Rebounds</th>
                     </tr>
                   </thead>
                   <tbody>
                     {game.players.map(({ player, stats }) => (
-                      <tr key={player.id} className="border-t">
+                      <tr key={player.id} className="border-t border-gray-600">
                         <td className="p-3">
-                          {player.name}
+                          <span className="text-white">{player.name}</span>
                           {player.jersey_number && (
-                            <span className="text-gray-600 ml-2">#{player.jersey_number}</span>
+                            <span className="text-gray-400 ml-2">#{player.jersey_number}</span>
                           )}
                         </td>
-                        <td className="p-3 text-center">{stats.points || 0}</td>
-                        <td className="p-3 text-center">{stats.assists || 0}</td>
-                        <td className="p-3 text-center">{stats.rebounds || 0}</td>
+                        <td className="p-3 text-center text-white">{stats.points || 0}</td>
+                        <td className="p-3 text-center text-white">{stats.assists || 0}</td>
+                        <td className="p-3 text-center text-white">{stats.rebounds || 0}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -159,7 +159,7 @@ function GamesContent() {
         </div>
 
         {games.length === 0 && (
-          <p className="text-center text-gray-500 py-8">
+          <p className="text-center text-gray-400 py-8">
             No games recorded yet. Start tracking stats from the coach page!
           </p>
         )}

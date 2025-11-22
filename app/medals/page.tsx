@@ -30,12 +30,6 @@ function MedalsContent() {
   const [awards, setAwards] = useState<Award[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (teamId) {
-      loadAwards();
-    }
-  }, [teamId]);
-
   const loadAwards = async () => {
     if (!teamId) return;
     
@@ -115,12 +109,18 @@ function MedalsContent() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    if (teamId) {
+      loadAwards();
+    }
+  }, [teamId, loadAwards]);
+
   if (!teamId) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
           <p className="text-xl mb-4">No team selected</p>
-          <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">
+          <Link href="/" className="text-blue-400 hover:text-blue-300 font-medium">
             ← Back to Teams
           </Link>
         </div>
@@ -140,37 +140,37 @@ function MedalsContent() {
     <main className="min-h-screen p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-2">
-          <Link href={`/coach?team=${teamId}`} className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-block">
+          <Link href={`/coach?team=${teamId}`} className="text-blue-400 hover:text-blue-300 font-medium text-sm inline-block">
             ← Back to Coach
           </Link>
         </div>
-        <h1 className="text-3xl font-bold mb-2">Awards & Medals</h1>
-        {team && <p className="text-gray-600 mb-6">{team.name}</p>}
+        <h1 className="text-3xl font-bold mb-2 text-white">Awards & Medals</h1>
+        {team && <p className="text-gray-400 mb-6">{team.name}</p>}
 
         {awards.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {awards.map((award, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-lg p-6 shadow-lg text-center"
+                className="bg-gradient-to-br from-yellow-900 to-orange-900 border-2 border-yellow-600 rounded-lg p-6 shadow-lg text-center"
               >
                 <div className="text-6xl mb-4">{award.emoji}</div>
-                <h2 className="text-xl font-bold mb-2">{award.title}</h2>
-                <p className="text-gray-600 text-sm mb-4">{award.description}</p>
-                <div className="bg-white rounded-lg p-4 border border-yellow-200">
-                  <p className="font-semibold text-lg">{award.player.name}</p>
+                <h2 className="text-xl font-bold mb-2 text-white">{award.title}</h2>
+                <p className="text-gray-300 text-sm mb-4">{award.description}</p>
+                <div className="bg-gray-800 rounded-lg p-4 border border-yellow-600">
+                  <p className="font-semibold text-lg text-white">{award.player.name}</p>
                   {award.player.jersey_number && (
-                    <p className="text-sm text-gray-600">#{award.player.jersey_number}</p>
+                    <p className="text-sm text-gray-400">#{award.player.jersey_number}</p>
                   )}
-                  <p className="text-2xl font-bold text-blue-600 mt-2">{award.value}</p>
+                  <p className="text-2xl font-bold text-red-400 mt-2">{award.value}</p>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="bg-gray-50 border rounded-lg p-8 text-center">
-            <p className="text-xl text-gray-600 mb-2">No awards yet!</p>
-            <p className="text-gray-500">Start tracking stats to see who earns the medals.</p>
+          <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 text-center">
+            <p className="text-xl text-gray-300 mb-2">No awards yet!</p>
+            <p className="text-gray-400">Start tracking stats to see who earns the medals.</p>
           </div>
         )}
 

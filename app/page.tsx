@@ -80,14 +80,14 @@ export default function LandingPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <main className="min-h-screen bg-gradient-to-br from-gray-900 to-black">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-black-600 to-red-800 text-white py-16 px-">
+      <div className="bg-gradient-to-r from-gray-900 to-red-800 text-white py-16 px-">
         <div className="max-w-6xl mx-auto pl-32">
           <h1 className="pl-4 text-5xl md:text-6xl font-bold mb-4">
             Coach Utility App
           </h1>
-          <p className="pl-4 text-xl md:text-2xl text-blue-100">
+          <p className="pl-4 text-xl md:text-2xl text-gray-300">
             Managing your teams, one season at a time
           </p>
         </div>
@@ -96,7 +96,7 @@ export default function LandingPage() {
       {/* Teams Section */}
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="justify-center pl-4 text-3xl font-bold text-gray-900">Your Teams</h2>
+          <h2 className="justify-center pl-4 text-3xl font-bold text-white">Your Teams</h2>
           <button
             type="button"
             onClick={() => setShowAddForm(!showAddForm)}
@@ -108,11 +108,11 @@ export default function LandingPage() {
 
         {/* Add Team Form */}
         {showAddForm && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h3 className="text-xl font-semibold mb-4">Add New Team</h3>
+          <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+            <h3 className="text-xl font-semibold mb-4 text-white">Add New Team</h3>
             <form onSubmit={handleAddTeam} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-300 mb-1">
                   Team Name
                 </label>
                 <input
@@ -120,19 +120,19 @@ export default function LandingPage() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-700 text-white"
                   placeholder="e.g., Hawks U12"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-300 mb-1">
                   Sport
                 </label>
                 <select
                   value={formData.sport}
                   onChange={(e) => setFormData({ ...formData, sport: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-700 text-white"
                 >
                   <option value="Basketball">Basketball</option>
                   <option value="Soccer">Soccer</option>
@@ -146,7 +146,7 @@ export default function LandingPage() {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
                     Season Start
                   </label>
                   <input
@@ -154,11 +154,11 @@ export default function LandingPage() {
                     required
                     value={formData.season_start}
                     onChange={(e) => setFormData({ ...formData, season_start: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-700 text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
                     Season End
                   </label>
                   <input
@@ -166,7 +166,7 @@ export default function LandingPage() {
                     required
                     value={formData.season_end}
                     onChange={(e) => setFormData({ ...formData, season_end: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-700 text-white"
                   />
                 </div>
               </div>
@@ -174,7 +174,7 @@ export default function LandingPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+                className="w-full bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
               >
                 {submitting ? 'Creating...' : 'Create Team'}
               </button>
@@ -184,22 +184,22 @@ export default function LandingPage() {
 
         {/* Teams List */}
         {teams.length === 0 ? (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
-            <p className="text-lg text-gray-700 mb-4">
+          <div className="bg-gray-800 border border-gray-600 rounded-lg p-8 text-center">
+            <p className="text-lg text-gray-300 mb-4">
               No teams yet. Add your first team to get started!
             </p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {teams.map((team) => (
-              <div key={team.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+              <div key={team.id} className="bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-1">
+                      <h3 className="text-xl font-bold text-white mb-1">
                         {team.name}
                       </h3>
-                      <p className="text-sm text-gray-600">{team.sport}</p>
+                      <p className="text-sm text-gray-400">{team.sport}</p>
                     </div>
                     <span className="text-2xl">
                       {team.sport === 'Basketball' && '🏀'}
@@ -211,19 +211,19 @@ export default function LandingPage() {
                       {team.sport === 'Other' && '🏆'}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 mb-4">
+                  <p className="text-sm text-gray-400 mb-4">
                     {formatDateRange(team.season_start, team.season_end)}
                   </p>
                   <div className="grid grid-cols-2 gap-3">
                     <Link
                       href={`/coach?team=${team.id}`}
-                      className="bg-blue-600 text-white text-center py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition text-sm"
+                      className="bg-red-600 text-white text-center py-2 px-4 rounded-lg font-medium hover:bg-red-700 transition text-sm"
                     >
                       Coach
                     </Link>
                     <Link
                       href={`/parents?team=${team.id}`}
-                      className="bg-green-600 text-white text-center py-2 px-4 rounded-lg font-medium hover:bg-green-700 transition text-sm"
+                      className="bg-gray-600 text-white text-center py-2 px-4 rounded-lg font-medium hover:bg-gray-700 transition text-sm"
                     >
                       Parents
                     </Link>

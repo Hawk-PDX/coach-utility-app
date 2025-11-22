@@ -38,12 +38,6 @@ function ReportsContent() {
   const [playerStats, setPlayerStats] = useState<PlayerStats[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (teamId) {
-      loadReports();
-    }
-  }, [teamId]);
-
   const loadReports = async () => {
     if (!teamId) return;
     
@@ -89,12 +83,18 @@ function ReportsContent() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    if (teamId) {
+      loadReports();
+    }
+  }, [teamId, loadReports]);
+
   if (!teamId) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
           <p className="text-xl mb-4">No team selected</p>
-          <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">
+          <Link href="/" className="text-blue-400 hover:text-blue-300 font-medium">
             ← Back to Teams
           </Link>
         </div>
@@ -114,42 +114,42 @@ function ReportsContent() {
     <main className="min-h-screen p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-2">
-          <Link href={`/coach?team=${teamId}`} className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-block">
+          <Link href={`/coach?team=${teamId}`} className="text-blue-400 hover:text-blue-300 font-medium text-sm inline-block">
             ← Back to Coach
           </Link>
         </div>
-        <h1 className="text-3xl font-bold mb-2">Player Reports</h1>
-        {team && <p className="text-gray-600 mb-6">{team.name}</p>}
+        <h1 className="text-3xl font-bold mb-2 text-white">Player Reports</h1>
+        {team && <p className="text-gray-400 mb-6">{team.name}</p>}
 
-        <div className="bg-white border rounded-lg overflow-hidden shadow-sm">
+        <div className="bg-gray-800 border border-gray-600 rounded-lg overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-gray-700 border-b border-gray-600">
                 <tr>
-                  <th className="text-left p-4 font-semibold">Player</th>
-                  <th className="text-left p-4 font-semibold">Position</th>
-                  <th className="text-center p-4 font-semibold">Games</th>
-                  <th className="text-center p-4 font-semibold">Points</th>
-                  <th className="text-center p-4 font-semibold">Assists</th>
-                  <th className="text-center p-4 font-semibold">Rebounds</th>
-                  <th className="text-center p-4 font-semibold">Shifts</th>
+                  <th className="text-left p-4 font-semibold text-white">Player</th>
+                  <th className="text-left p-4 font-semibold text-white">Position</th>
+                  <th className="text-center p-4 font-semibold text-white">Games</th>
+                  <th className="text-center p-4 font-semibold text-white">Points</th>
+                  <th className="text-center p-4 font-semibold text-white">Assists</th>
+                  <th className="text-center p-4 font-semibold text-white">Rebounds</th>
+                  <th className="text-center p-4 font-semibold text-white">Shifts</th>
                 </tr>
               </thead>
               <tbody>
                 {playerStats.map((stat) => (
-                  <tr key={stat.player.id} className="border-b hover:bg-gray-50">
+                  <tr key={stat.player.id} className="border-b border-gray-600 hover:bg-gray-700">
                     <td className="p-4">
-                      <div className="font-medium">{stat.player.name}</div>
+                      <div className="font-medium text-white">{stat.player.name}</div>
                       {stat.player.jersey_number && (
-                        <div className="text-sm text-gray-600">#{stat.player.jersey_number}</div>
+                        <div className="text-sm text-gray-400">#{stat.player.jersey_number}</div>
                       )}
                     </td>
-                    <td className="p-4 text-gray-600">{stat.player.position || '-'}</td>
-                    <td className="p-4 text-center">{stat.gamesPlayed}</td>
-                    <td className="p-4 text-center font-medium">{stat.totalPoints}</td>
-                    <td className="p-4 text-center font-medium">{stat.totalAssists}</td>
-                    <td className="p-4 text-center font-medium">{stat.totalRebounds}</td>
-                    <td className="p-4 text-center font-medium">{stat.totalShifts}</td>
+                    <td className="p-4 text-gray-400">{stat.player.position || '-'}</td>
+                    <td className="p-4 text-center text-white">{stat.gamesPlayed}</td>
+                    <td className="p-4 text-center font-medium text-white">{stat.totalPoints}</td>
+                    <td className="p-4 text-center font-medium text-white">{stat.totalAssists}</td>
+                    <td className="p-4 text-center font-medium text-white">{stat.totalRebounds}</td>
+                    <td className="p-4 text-center font-medium text-white">{stat.totalShifts}</td>
                   </tr>
                 ))}
               </tbody>
@@ -158,7 +158,7 @@ function ReportsContent() {
         </div>
 
         {playerStats.length === 0 && (
-          <p className="text-center text-gray-500 py-8">No player data yet. Start tracking stats from the coach page!</p>
+          <p className="text-center text-gray-400 py-8">No player data yet. Start tracking stats from the coach page!</p>
         )}
       </div>
     </main>
