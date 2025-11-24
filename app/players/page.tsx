@@ -66,7 +66,6 @@ function PlayersContent() {
         .eq('id', editingPlayer.id);
 
       if (error) {
-        console.error('Error updating player:', error);
         alert('Error updating player: ' + error.message);
       } else {
         setFormData({ name: '', jersey_number: '', position: '' });
@@ -84,7 +83,6 @@ function PlayersContent() {
       });
 
       if (error) {
-        console.error('Error adding player:', error);
         alert('Error adding player: ' + error.message);
       } else {
         setFormData({ name: '', jersey_number: '', position: '' });
@@ -145,10 +143,10 @@ function PlayersContent() {
             ← Back to Coach
           </Link>
         </div>
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-white">Players</h1>
-            {team && <p className="text-gray-400">{team.name}</p>}
+            <h1 className="text-2xl md:text-3xl font-bold text-white">Players</h1>
+            {team && <p className="text-sm md:text-base text-gray-400">{team.name}</p>}
           </div>
           <button
             type="button"
@@ -159,7 +157,7 @@ function PlayersContent() {
                 setShowForm(true);
               }
             }}
-            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 active:scale-95 transition"
+            className="w-full sm:w-auto bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 active:scale-95 transition"
           >
             {showForm ? 'Cancel' : '+ Add Player'}
           </button>
@@ -214,26 +212,26 @@ function PlayersContent() {
 
         <div className="space-y-3">
           {players.map((player) => (
-            <div key={player.id} className="bg-gray-800 border border-gray-600 rounded-lg p-4 shadow-sm flex justify-between items-center">
+            <div key={player.id} className="bg-gray-800 border border-gray-600 rounded-lg p-3 md:p-4 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
-                <h3 className="text-red-500 text-lg font-semibold">{player.name}</h3>
-                <p className="text-gray-400">
+                <h3 className="text-red-500 text-base md:text-lg font-semibold">{player.name}</h3>
+                <p className="text-sm md:text-base text-gray-400">
                   {player.jersey_number && `#${player.jersey_number}`}
                   {player.position && ` • ${player.position}`}
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={() => editPlayer(player)}
-                  className="text-blue-400 hover:text-blue-300 px-4 py-2 active:scale-95 transition"
+                  className="flex-1 sm:flex-none text-blue-400 hover:text-blue-300 px-4 py-2 active:scale-95 transition"
                 >
                   Edit
                 </button>
                 <button
                   type="button"
                   onClick={() => deletePlayer(player.id, player.name)}
-                  className="text-red-600 hover:text-red-700 px-4 py-2 active:scale-95 transition"
+                  className="flex-1 sm:flex-none text-red-600 hover:text-red-700 px-4 py-2 active:scale-95 transition"
                 >
                   Delete
                 </button>

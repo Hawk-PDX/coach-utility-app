@@ -28,49 +28,6 @@ function CoachContent() {
     location: ''
   });
 
-  const loadTeamAndPlayers = async () => {
-    if (!teamId) return;
-    
-    const { data: teamData } = await supabase
-      .from('teams')
-      .select('*')
-      .eq('id', teamId)
-      .single();
-    
-    if (teamData) {
-      setTeam(teamData);
-    }
-    
-    const { data, error } = await supabase
-      .from('players')
-      .select('*')
-      .eq('team_id', teamId)
-      .order('name');
-    
-    if (error) {
-      console.error('Error loading players:', error);
-    } else {
-      setPlayers(data || []);
-    }
-    setLoading(false);
-  };
-
-  const loadOrCreateTodaysGame = async () => {
-    if (!teamId) return;
-    
-    const today = new Date().toISOString().split('T')[0];
-    
-    const { data: existingGame } = await supabase
-      .from('games')
-      .select('*')
-      .eq('team_id', teamId)
-      .eq('game_date', today)
-      .single();
-    
-    if (existingGame) {
-      setCurrentGame(existingGame);
-    }
-  };
 
   const createNewGame = async () => {
     if (!teamId) return;
@@ -88,63 +45,97 @@ function CoachContent() {
       .select()
       .single();
     
-    if (error) {
-      console.error('Error creating game:', error);
-    } else {
+    if (!error && data) {
       setCurrentGame(data);
       setShowGameForm(false);
       setGameFormData({ opponent: '', location: '' });
     }
   };
 
-  const loadGameStats = async () => {
-    if (!currentGame) return;
-    
-    const { data: statsData } = await supabase
-      .from('game_stats')
-      .select('*')
-      .eq('game_id', currentGame.id);
-    
-    const { data: playTimeData } = await supabase
-      .from('play_time')
-      .select('*')
-      .eq('game_id', currentGame.id);
-    
-    const stats: Record<string, PlayerStats> = {};
-    
-    players.forEach(player => {
-      const playerGameStats = statsData?.find(s => s.player_id === player.id);
-      const playerPlayTime = playTimeData?.find(p => p.player_id === player.id);
-      
-      stats[player.id] = {
-        shifts: playerPlayTime?.shifts || 0,
-        points: playerGameStats?.points || 0,
-        assists: playerGameStats?.assists || 0,
-        rebounds: playerGameStats?.rebounds || 0
-      };
-    });
-    
-    setPlayerStats(stats);
-  };
 
   useEffect(() => {
-    if (teamId) {
-      loadTeamAndPlayers();
-      loadOrCreateTodaysGame();
-    }
-  }, [teamId, loadTeamAndPlayers, loadOrCreateTodaysGame]);
+    if (!teamId) return;
+    
+    const loadData = async () => {
+      // Load team and players
+      const { data: teamData } = await supabase
+        .from('teams')
+        .select('*')
+        .eq('id', teamId)
+        .single();
+      
+      if (teamData) {
+        setTeam(teamData);
+      }
+      
+      const { data } = await supabase
+        .from('players')
+        .select('*')
+        .eq('team_id', teamId)
+        .order('name');
+      
+      if (data) {
+        setPlayers(data);
+      }
+      setLoading(false);
+      
+      // Load or check for today's game
+      const today = new Date().toISOString().split('T')[0];
+      
+      const { data: existingGame } = await supabase
+        .from('games')
+        .select('*')
+        .eq('team_id', teamId)
+        .eq('game_date', today)
+        .single();
+      
+      if (existingGame) {
+        setCurrentGame(existingGame);
+      }
+    };
+    
+    loadData();
+  }, [teamId]);
 
   useEffect(() => {
-    if (currentGame) {
-      loadGameStats();
+    if (!currentGame || players.length === 0) return;
+    
+    const loadStats = async () => {
+      const { data: statsData } = await supabase
+        .from('game_stats')
+        .select('*')
+        .eq('game_id', currentGame.id);
       
-      const pollInterval = setInterval(() => {
-        loadGameStats();
-      }, 3000);
+      const { data: playTimeData } = await supabase
+        .from('play_time')
+        .select('*')
+        .eq('game_id', currentGame.id);
       
-      return () => clearInterval(pollInterval);
-    }
-  }, [currentGame, loadGameStats]);
+      const stats: Record<string, PlayerStats> = {};
+      
+      players.forEach(player => {
+        const playerGameStats = statsData?.find(s => s.player_id === player.id);
+        const playerPlayTime = playTimeData?.find(p => p.player_id === player.id);
+        
+        stats[player.id] = {
+          shifts: playerPlayTime?.shifts || 0,
+          points: playerGameStats?.points || 0,
+          assists: playerGameStats?.assists || 0,
+          rebounds: playerGameStats?.rebounds || 0
+        };
+      });
+      
+      setPlayerStats(stats);
+    };
+    
+    loadStats();
+    
+    const pollInterval = setInterval(() => {
+      loadStats();
+    }, 3000);
+    
+    return () => clearInterval(pollInterval);
+  }, [currentGame, players]);
 
   const trackPlayTime = async (playerId: string) => {
     if (!currentGame) return;
@@ -171,8 +162,6 @@ function CoachContent() {
           shifts: 1 
         });
     }
-    
-    loadGameStats();
   };
 
   const quickStat = async (playerId: string, statType: 'points' | 'assists' | 'rebounds') => {
@@ -202,8 +191,6 @@ function CoachContent() {
           ...increment 
         });
     }
-    
-    loadGameStats();
   };
 
   const adjustStat = async (playerId: string, statType: 'shifts' | 'points' | 'assists' | 'rebounds', delta: number) => {
@@ -225,8 +212,6 @@ function CoachContent() {
         .from(table)
         .update({ [column]: newValue })
         .eq('id', existing.id);
-      
-      loadGameStats();
     }
   };
 
@@ -273,16 +258,16 @@ function CoachContent() {
               Logout
             </button>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-white">{team?.name || 'Coach Utility'}</h1>
-              {team && <p className="text-gray-400">{team.sport} • Coach View</p>}
+              <h1 className="text-2xl md:text-3xl font-bold text-white">{team?.name || 'Coach Utility'}</h1>
+              {team && <p className="text-gray-400 text-sm md:text-base">{team.sport} • Coach View</p>}
             </div>
             {!currentGame && (
               <button
                 type="button"
                 onClick={() => setShowGameForm(!showGameForm)}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 active:scale-95 transition"
+                className="w-full sm:w-auto bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 active:scale-95 transition"
               >
                 Start Game
               </button>
@@ -312,7 +297,7 @@ function CoachContent() {
                 <button
                   type="button"
                   onClick={createNewGame}
-                  className="flex-1 bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 active:scale-95 transition"
+                  className="flex-1 bg-red-600 text-white py-2 rounded-lg font-medium hover:bg-red-700 active:scale-95 transition"
                 >
                   Start Tracking
                 </button>
@@ -360,7 +345,7 @@ function CoachContent() {
             <p className="mb-4 text-gray-300">Add players to your roster to start tracking.</p>
             <a 
               href={`/players?team=${teamId}`}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg inline-block hover:bg-blue-700"
+              className="bg-red-600 text-white px-6 py-3 rounded-lg inline-block hover:bg-red-700"
             >
               Add Players
             </a>
@@ -370,40 +355,40 @@ function CoachContent() {
             {players.map((player) => {
               const stats = playerStats[player.id] || { shifts: 0, points: 0, assists: 0, rebounds: 0 };
               return (
-                <div key={player.id} className="bg-gray-800 border border-gray-600 rounded-lg p-4 shadow-sm">
-                  <div className="flex justify-between items-start mb-3">
+                <div key={player.id} className="bg-gray-800 border border-gray-600 rounded-lg p-3 md:p-4 shadow-sm">
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-3">
                     <div>
-                      <h3 className="text-lg font-bold text-white">{player.name}</h3>
-                      <p className="text-sm text-gray-400">
+                      <h3 className="text-base md:text-lg font-bold text-white">{player.name}</h3>
+                      <p className="text-xs md:text-sm text-gray-400">
                         #{player.jersey_number} {player.position && `• ${player.position}`}
                       </p>
                     </div>
-                    <div className="flex gap-3 text-center">
-                      <div className="min-w-[60px]">
-                        <div className="text-2xl font-bold text-green-400">{stats.shifts}</div>
+                    <div className="flex gap-2 sm:gap-3 text-center w-full sm:w-auto justify-between sm:justify-start">
+                      <div className="min-w-[50px] sm:min-w-[60px]">
+                        <div className="text-xl sm:text-2xl font-bold text-green-400">{stats.shifts}</div>
                         <div className="text-xs text-gray-400">Shifts</div>
                       </div>
-                      <div className="min-w-[60px]">
-                        <div className="text-2xl font-bold text-blue-400">{stats.points}</div>
+                      <div className="min-w-[50px] sm:min-w-[60px]">
+                        <div className="text-xl sm:text-2xl font-bold text-blue-400">{stats.points}</div>
                         <div className="text-xs text-gray-400">Points</div>
                       </div>
-                      <div className="min-w-[60px]">
-                        <div className="text-2xl font-bold text-purple-400">{stats.assists}</div>
+                      <div className="min-w-[50px] sm:min-w-[60px]">
+                        <div className="text-xl sm:text-2xl font-bold text-purple-400">{stats.assists}</div>
                         <div className="text-xs text-gray-400">Assists</div>
                       </div>
-                      <div className="min-w-[60px]">
-                        <div className="text-2xl font-bold text-orange-400">{stats.rebounds}</div>
+                      <div className="min-w-[50px] sm:min-w-[60px]">
+                        <div className="text-xl sm:text-2xl font-bold text-orange-400">{stats.rebounds}</div>
                         <div className="text-xs text-gray-400">Reb</div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-4 gap-1 sm:gap-2">
                     <div className="space-y-1">
                       <button
                         type="button"
                         onClick={() => trackPlayTime(player.id)}
-                        className="w-full bg-green-600 text-white py-2 px-2 rounded-lg text-sm font-medium hover:bg-green-700 active:scale-95 transition"
+                        className="w-full bg-green-600 text-white py-2 px-1 sm:px-2 rounded-lg text-sm font-medium hover:bg-green-700 active:scale-95 transition"
                       >
                         +
                       </button>
@@ -411,7 +396,7 @@ function CoachContent() {
                         <button
                           type="button"
                           onClick={() => adjustStat(player.id, 'shifts', -1)}
-                          className="w-full bg-green-100 text-green-700 py-1 px-2 rounded text-sm hover:bg-green-200 active:scale-95 transition"
+                          className="w-full bg-green-100 text-green-700 py-1 px-1 sm:px-2 rounded text-xs sm:text-sm hover:bg-green-200 active:scale-95 transition"
                         >
                           −
                         </button>
@@ -421,7 +406,7 @@ function CoachContent() {
                       <button
                         type="button"
                         onClick={() => quickStat(player.id, 'points')}
-                        className="w-full bg-blue-600 text-white py-2 px-2 rounded-lg text-sm font-medium hover:bg-blue-700 active:scale-95 transition"
+                        className="w-full bg-blue-600 text-white py-2 px-1 sm:px-2 rounded-lg text-sm font-medium hover:bg-blue-700 active:scale-95 transition"
                       >
                         +
                       </button>
@@ -429,7 +414,7 @@ function CoachContent() {
                         <button
                           type="button"
                           onClick={() => adjustStat(player.id, 'points', -1)}
-                          className="w-full bg-blue-100 text-blue-700 py-1 px-2 rounded text-sm hover:bg-blue-200 active:scale-95 transition"
+                          className="w-full bg-blue-100 text-blue-700 py-1 px-1 sm:px-2 rounded text-xs sm:text-sm hover:bg-blue-200 active:scale-95 transition"
                         >
                           −
                         </button>
@@ -439,7 +424,7 @@ function CoachContent() {
                       <button
                         type="button"
                         onClick={() => quickStat(player.id, 'assists')}
-                        className="w-full bg-purple-600 text-white py-2 px-2 rounded-lg text-sm font-medium hover:bg-purple-700 active:scale-95 transition"
+                        className="w-full bg-purple-600 text-white py-2 px-1 sm:px-2 rounded-lg text-sm font-medium hover:bg-purple-700 active:scale-95 transition"
                       >
                         +
                       </button>
@@ -447,7 +432,7 @@ function CoachContent() {
                         <button
                           type="button"
                           onClick={() => adjustStat(player.id, 'assists', -1)}
-                          className="w-full bg-purple-100 text-purple-700 py-1 px-2 rounded text-sm hover:bg-purple-200 active:scale-95 transition"
+                          className="w-full bg-purple-100 text-purple-700 py-1 px-1 sm:px-2 rounded text-xs sm:text-sm hover:bg-purple-200 active:scale-95 transition"
                         >
                           −
                         </button>
@@ -457,7 +442,7 @@ function CoachContent() {
                       <button
                         type="button"
                         onClick={() => quickStat(player.id, 'rebounds')}
-                        className="w-full bg-orange-600 text-white py-2 px-2 rounded-lg text-sm font-medium hover:bg-orange-700 active:scale-95 transition"
+                        className="w-full bg-orange-600 text-white py-2 px-1 sm:px-2 rounded-lg text-sm font-medium hover:bg-orange-700 active:scale-95 transition"
                       >
                         +
                       </button>
@@ -465,7 +450,7 @@ function CoachContent() {
                         <button
                           type="button"
                           onClick={() => adjustStat(player.id, 'rebounds', -1)}
-                          className="w-full bg-orange-100 text-orange-700 py-1 px-2 rounded text-sm hover:bg-orange-200 active:scale-95 transition"
+                          className="w-full bg-orange-100 text-orange-700 py-1 px-1 sm:px-2 rounded text-xs sm:text-sm hover:bg-orange-200 active:scale-95 transition"
                         >
                           −
                         </button>
@@ -478,22 +463,22 @@ function CoachContent() {
           </div>
         )}
 
-        <nav className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <a href={`/players?team=${teamId}`} className="bg-gray-800 text-white p-4 rounded-lg text-center hover:bg-gray-700 font-medium">
-            <span className="text-2xl mb-2 block">👥</span>
-            Players
+        <nav className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          <a href={`/players?team=${teamId}`} className="bg-gray-800 text-white p-3 md:p-4 rounded-lg text-center hover:bg-red-600 font-medium transition">
+            <span className="text-xl md:text-2xl mb-1 md:mb-2 block">👥</span>
+            <span className="text-sm md:text-base">Players</span>
           </a>
-          <a href={`/reports?team=${teamId}`} className="bg-gray-800 text-white p-4 rounded-lg text-center hover:bg-gray-700 font-medium">
-            <span className="text-2xl mb-2 block">📊</span>
-            Reports
+          <a href={`/reports?team=${teamId}`} className="bg-gray-800 text-white p-3 md:p-4 rounded-lg text-center hover:bg-red-600 font-medium transition">
+            <span className="text-xl md:text-2xl mb-1 md:mb-2 block">📊</span>
+            <span className="text-sm md:text-base">Reports</span>
           </a>
-          <a href={`/medals?team=${teamId}`} className="bg-gray-800 text-white p-4 rounded-lg text-center hover:bg-gray-700 font-medium">
-            <span className="text-2xl mb-2 block">🏅</span>
-            Medals
+          <a href={`/medals?team=${teamId}`} className="bg-gray-800 text-white p-3 md:p-4 rounded-lg text-center hover:bg-red-600 font-medium transition">
+            <span className="text-xl md:text-2xl mb-1 md:mb-2 block">🏅</span>
+            <span className="text-sm md:text-base">Medals</span>
           </a>
-          <a href={`/games?team=${teamId}`} className="bg-gray-800 text-white p-4 rounded-lg text-center hover:bg-gray-700 font-medium">
-            <span className="text-2xl mb-2 block">🏀</span>
-            Games
+          <a href={`/games?team=${teamId}`} className="bg-gray-800 text-white p-3 md:p-4 rounded-lg text-center hover:bg-red-600 font-medium transition">
+            <span className="text-xl md:text-2xl mb-1 md:mb-2 block">🏀</span>
+            <span className="text-sm md:text-base">Games</span>
           </a>
         </nav>
       </div>

@@ -228,16 +228,16 @@ function ParentsContent() {
     <main className="min-h-screen p-4 md:p-8 bg-gray-900">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           <Link
             href="/"
             className="text-red-400 hover:text-red-300 font-medium text-sm mb-2 inline-block"
           >
             ← Back to Teams
           </Link>
-          <h1 className="text-4xl font-bold text-white">{team?.name || 'Parent Portal'}</h1>
+          <h1 className="text-2xl md:text-4xl font-bold text-white">{team?.name || 'Parent Portal'}</h1>
           {team && (
-            <p className="text-gray-400 mt-1">
+            <p className="text-sm md:text-base text-gray-400 mt-1">
               {team.sport} • {formatDateRange(team.season_start, team.season_end)}
             </p>
           )}
@@ -263,11 +263,11 @@ function ParentsContent() {
         )}
 
         {/* Tab Navigation */}
-        <div className="bg-gray-800 rounded-lg shadow-sm mb-6 overflow-hidden">
-          <div className="flex border-b border-gray-600">
+        <div className="bg-gray-800 rounded-lg shadow-sm mb-6 overflow-x-auto">
+          <div className="flex border-b border-gray-600 min-w-max">
             <button
               onClick={() => setActiveTab('roster')}
-              className={`flex-1 px-6 py-3 font-medium transition ${
+              className={`flex-1 px-4 md:px-6 py-3 font-medium text-sm md:text-base transition whitespace-nowrap ${
                 activeTab === 'roster'
                   ? 'bg-red-900 text-red-300 border-b-2 border-red-600'
                   : 'text-gray-400 hover:bg-gray-700'
@@ -277,7 +277,7 @@ function ParentsContent() {
             </button>
             <button
               onClick={() => setActiveTab('schedule')}
-              className={`flex-1 px-6 py-3 font-medium transition ${
+              className={`flex-1 px-4 md:px-6 py-3 font-medium text-sm md:text-base transition whitespace-nowrap ${
                 activeTab === 'schedule'
                   ? 'bg-red-900 text-red-300 border-b-2 border-red-600'
                   : 'text-gray-400 hover:bg-gray-700'
@@ -287,7 +287,7 @@ function ParentsContent() {
             </button>
             <button
               onClick={() => setActiveTab('news')}
-              className={`flex-1 px-6 py-3 font-medium transition ${
+              className={`flex-1 px-4 md:px-6 py-3 font-medium text-sm md:text-base transition whitespace-nowrap ${
                 activeTab === 'news'
                   ? 'bg-red-900 text-red-300 border-b-2 border-red-600'
                   : 'text-gray-400 hover:bg-gray-700'
@@ -297,7 +297,7 @@ function ParentsContent() {
             </button>
             <button
               onClick={() => setActiveTab('stats')}
-              className={`flex-1 px-6 py-3 font-medium transition ${
+              className={`flex-1 px-4 md:px-6 py-3 font-medium text-sm md:text-base transition whitespace-nowrap ${
                 activeTab === 'stats'
                   ? 'bg-red-900 text-red-300 border-b-2 border-red-600'
                   : 'text-gray-400 hover:bg-gray-700'
@@ -315,9 +315,9 @@ function ParentsContent() {
             {players.length === 0 ? (
               <p className="text-gray-600">No players on the roster yet.</p>
             ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                 {players.map((player) => (
-                  <div key={player.id} className="border rounded-lg p-4 hover:shadow-md transition">
+                  <div key={player.id} className="border rounded-lg p-3 md:p-4 hover:shadow-md transition">
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="font-semibold text-lg">{player.name}</h3>
@@ -366,9 +366,9 @@ function ParentsContent() {
                       </div>
                       
                       {/* Snack Signups */}
-                      <div className="mt-4 pt-4 border-t">
+                      <div className="mt-4 pt-4 border-t border-gray-600">
                         <div className="flex justify-between items-center mb-2">
-                          <h4 className="font-medium text-sm">Game Snacks</h4>
+                          <h4 className="font-medium text-sm text-white">Game Snacks</h4>
                           {game.snack_signups && game.snack_signups.length < 2 && (
                             <button
                               onClick={() => {
@@ -384,14 +384,14 @@ function ParentsContent() {
                         {game.snack_signups && game.snack_signups.length > 0 ? (
                           <div className="space-y-1">
                             {game.snack_signups.map((signup) => (
-                              <p key={signup.id} className="text-sm text-gray-700">
+                              <p key={signup.id} className="text-sm text-gray-300">
                                 ✓ {signup.parent_name}
                                 {signup.items_bringing && ` - ${signup.items_bringing}`}
                               </p>
                             ))}
                           </div>
                         ) : (
-                          <p className="text-sm text-gray-500 italic">No signups yet</p>
+                          <p className="text-sm text-gray-400 italic">No signups yet</p>
                         )}
                       </div>
                     </div>

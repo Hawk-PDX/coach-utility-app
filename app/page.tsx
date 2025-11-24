@@ -26,9 +26,7 @@ export default function LandingPage() {
       .select('*')
       .order('created_at', { ascending: false });
     
-    if (error) {
-      console.error('Error loading teams:', error);
-    } else {
+    if (!error) {
       setTeams(data || []);
     }
     setLoading(false);
@@ -38,7 +36,6 @@ export default function LandingPage() {
     e.preventDefault();
     e.stopPropagation();
     
-    console.log('Form submitted with data:', formData);
     setSubmitting(true);
     
     try {
@@ -48,16 +45,13 @@ export default function LandingPage() {
         .select();
       
       if (error) {
-        console.error('Supabase error:', error);
         alert(`Failed to add team: ${error.message}`);
       } else {
-        console.log('Team added successfully:', data);
         setFormData({ name: '', sport: 'Basketball', season_start: '', season_end: '' });
         setShowAddForm(false);
         await loadTeams();
       }
     } catch (err) {
-      console.error('Unexpected error:', err);
       alert('An unexpected error occurred');
     } finally {
       setSubmitting(false);
@@ -82,25 +76,25 @@ export default function LandingPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-900 to-black">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-gray-900 to-red-800 text-white py-16 px-">
-        <div className="max-w-6xl mx-auto pl-32">
-          <h1 className="pl-4 text-5xl md:text-6xl font-bold mb-4">
+      <div className="bg-gradient-to-r from-gray-900 to-red-800 text-white py-8 md:py-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4">
             Coach Utility App
           </h1>
-          <p className="pl-4 text-xl md:text-2xl text-gray-300">
+          <p className="text-lg md:text-xl lg:text-2xl text-gray-300">
             Managing your teams, one season at a time
           </p>
         </div>
       </div>
 
       {/* Teams Section */}
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="justify-center pl-4 text-3xl font-bold text-white">Your Teams</h2>
+      <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-white">Your Teams</h2>
           <button
             type="button"
             onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition active:scale-95"
+            className="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition active:scale-95"
           >
             {showAddForm ? 'Cancel' : '+ Add Team'}
           </button>
@@ -144,7 +138,7 @@ export default function LandingPage() {
                 </select>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1">
                     Season Start
@@ -190,10 +184,10 @@ export default function LandingPage() {
             </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {teams.map((team) => (
               <div key={team.id} className="bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                <div className="p-6">
+                <div className="p-4 md:p-6">
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h3 className="text-xl font-bold text-white mb-1">
