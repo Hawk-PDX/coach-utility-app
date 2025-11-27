@@ -4,14 +4,12 @@ import { cache } from 'react';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-// Create a server-side Supabase client
-// This can be used in Server Components and Server Actions
+// Server-side Supabase client for RSC
 export const createServerClient = () => {
   return createClient(supabaseUrl, supabaseAnonKey);
 };
 
-// Data fetching functions for Server Components
-// Using React's cache() to deduplicate requests during rendering
+// React cache() dedupes these during render
 
 export const getTeam = cache(async (teamId: string) => {
   const supabase = createServerClient();

@@ -146,9 +146,9 @@ function ManageContent() {
       setNewsForm({ title: '', content: '', postedBy: '', isPinned: false });
       setShowNewsForm(false);
       await loadTeamNews();
-      alert('News posted successfully!');
+      alert('News posted');
     } else {
-      alert('Error posting news. Please try again.');
+      alert('Error posting news');
     }
   };
 
@@ -199,9 +199,9 @@ function ManageContent() {
       setRecognitionForm({ playerId: '', recognitionType: 'Player of the Week', description: '' });
       setShowRecognitionForm(false);
       await loadRecognitions();
-      alert('Player recognition added successfully!');
+      alert('Recognition added');
     } else {
-      alert('Error adding recognition. Please try again.');
+      alert('Error adding recognition');
     }
   };
 
@@ -233,9 +233,9 @@ function ManageContent() {
     if (!error) {
       setGameResultForm({ gameId: '', ourScore: '', opponentScore: '' });
       await loadGames();
-      alert('Game result updated successfully!');
+      alert('Result saved');
     } else {
-      alert('Error updating game result. Please try again.');
+      alert('Error updating result');
     }
   };
 

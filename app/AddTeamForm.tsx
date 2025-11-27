@@ -32,7 +32,7 @@ export function AddTeamForm() {
       } else {
         setFormData({ name: '', sport: 'Basketball', season_start: '', season_end: '' });
         setShowForm(false);
-        router.refresh(); // Refresh to show new team
+        router.refresh();
       }
     } catch (err) {
       alert('An unexpected error occurred');

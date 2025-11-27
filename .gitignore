@@ -49,6 +49,7 @@ next-env.d.ts
 DATA_LOADING_PATTERN.md
 SERVER_COMPONENTS_MIGRATION_STATUS.md
 SERVER_COMPONENTS_PROOF_OF_CONCEPT.md
-__tests__*
+__tests__
 coach.test.ts
 parent.test.ts
+./app/reports/page-old.tsx
