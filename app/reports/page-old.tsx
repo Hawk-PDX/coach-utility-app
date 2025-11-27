@@ -1,7 +1,9 @@
+'use client';
+
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { getTeam, getPlayers, getPlayerStats } from '@/lib/supabase-server';
-import { createServerClient } from '@/lib/supabase-server';
-import type { Player } from '@/lib/supabase';
+import { supabase, type Player, type Team } from '@/lib/supabase';
 
 interface GameStat {
   id: string;
@@ -28,17 +30,64 @@ interface PlayerStats {
   gamesPlayed: number;
 }
 
-type SearchParams = {
-  team?: string;
-};
+function ReportsContent() {
+  const searchParams = useSearchParams();
+  const teamId = searchParams.get('team');
+  
+  const [team, setTeam] = useState<Team | null>(null);
+  const [playerStats, setPlayerStats] = useState<PlayerStats[]>([]);
+  const [loading, setLoading] = useState(true);
 
-type ReportsPageProps = {
-  searchParams: Promise<SearchParams>;
-};
+  const loadReports = async () => {
+    if (!teamId) return;
+    
+    const { data: teamData } = await supabase
+      .from('teams')
+      .select('*')
+      .eq('id', teamId)
+      .single();
+    
+    if (teamData) {
+      setTeam(teamData);
+    }
+    
+    const { data: players } = await supabase
+      .from('players')
+      .select('*')
+      .eq('team_id', teamId)
+      .order('name');
 
-export default async function ReportsPage({ searchParams }: ReportsPageProps) {
-  const params = await searchParams;
-  const teamId = params.team;
+    const { data: gameStats } = await supabase
+      .from('game_stats')
+      .select('*');
+
+    const { data: playTime } = await supabase
+      .from('play_time')
+      .select('*');
+
+    const stats: PlayerStats[] = (players || []).map((player) => {
+      const playerGameStats = (gameStats || []).filter((s: GameStat) => s.player_id === player.id);
+      const playerPlayTime = (playTime || []).filter((p: PlayTime) => p.player_id === player.id);
+
+      return {
+        player,
+        totalPoints: playerGameStats.reduce((sum: number, s: GameStat) => sum + (s.points || 0), 0),
+        totalAssists: playerGameStats.reduce((sum: number, s: GameStat) => sum + (s.assists || 0), 0),
+        totalRebounds: playerGameStats.reduce((sum: number, s: GameStat) => sum + (s.rebounds || 0), 0),
+        totalShifts: playerPlayTime.reduce((sum: number, p: PlayTime) => sum + (p.shifts || 0), 0),
+        gamesPlayed: new Set(playerGameStats.map((s: GameStat) => s.game_date)).size,
+      };
+    });
+
+    setPlayerStats(stats);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (teamId) {
+      loadReports();
+    }
+  }, [teamId]);
 
   if (!teamId) {
     return (
@@ -53,31 +102,13 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
     );
   }
 
-  // Fetch data on server
-  const [team, players] = await Promise.all([
-    getTeam(teamId),
-    getPlayers(teamId)
-  ]);
-
-  const supabase = createServerClient();
-  const [{ data: gameStats }, { data: playTime }] = await Promise.all([
-    supabase.from('game_stats').select('*'),
-    supabase.from('play_time').select('*')
-  ]);
-
-  const stats: PlayerStats[] = (players || []).map((player) => {
-    const playerGameStats = (gameStats || []).filter((s: GameStat) => s.player_id === player.id);
-    const playerPlayTime = (playTime || []).filter((p: PlayTime) => p.player_id === player.id);
-
-    return {
-      player,
-      totalPoints: playerGameStats.reduce((sum: number, s: GameStat) => sum + (s.points || 0), 0),
-      totalAssists: playerGameStats.reduce((sum: number, s: GameStat) => sum + (s.assists || 0), 0),
-      totalRebounds: playerGameStats.reduce((sum: number, s: GameStat) => sum + (s.rebounds || 0), 0),
-      totalShifts: playerPlayTime.reduce((sum: number, p: PlayTime) => sum + (p.shifts || 0), 0),
-      gamesPlayed: new Set(playerGameStats.map((s: GameStat) => s.game_date)).size,
-    };
-  });
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen p-4 md:p-8">
@@ -105,7 +136,7 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
                 </tr>
               </thead>
               <tbody>
-                {stats.map((stat) => (
+                {playerStats.map((stat) => (
                   <tr key={stat.player.id} className="border-b border-gray-600 hover:bg-gray-700">
                     <td className="p-4">
                       <div className="font-medium text-white">{stat.player.name}</div>
@@ -126,10 +157,22 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
           </div>
         </div>
 
-        {stats.length === 0 && (
+        {playerStats.length === 0 && (
           <p className="text-center text-gray-400 py-8">No player data yet. Start tracking stats from the coach page!</p>
         )}
       </div>
     </main>
+  );
+}
+
+export default function ReportsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl">Loading...</p>
+      </div>
+    }>
+      <ReportsContent />
+    </Suspense>
   );
 }

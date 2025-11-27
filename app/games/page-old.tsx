@@ -1,7 +1,9 @@
+'use client';
+
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { getTeam, getPlayers, getPlayerStats } from '@/lib/supabase-server';
-import { createServerClient } from '@/lib/supabase-server';
-import type { Player } from '@/lib/supabase';
+import { supabase, type Player, type Team } from '@/lib/supabase';
 
 interface GameStat {
   id: string;
@@ -20,17 +22,66 @@ interface GameData {
   }[];
 }
 
-type SearchParams = {
-  team?: string;
-};
+function GamesContent() {
+  const searchParams = useSearchParams();
+  const teamId = searchParams.get('team');
+  
+  const [team, setTeam] = useState<Team | null>(null);
+  const [games, setGames] = useState<GameData[]>([]);
+  const [loading, setLoading] = useState(true);
 
-type GamesPageProps = {
-  searchParams: Promise<SearchParams>;
-};
+  const loadGames = async () => {
+    if (!teamId) return;
+    
+    const { data: teamData } = await supabase
+      .from('teams')
+      .select('*')
+      .eq('id', teamId)
+      .single();
+    
+    if (teamData) {
+      setTeam(teamData);
+    }
+    
+    const { data: players } = await supabase
+      .from('players')
+      .select('*')
+      .eq('team_id', teamId);
 
-export default async function GamesPage({ searchParams }: GamesPageProps) {
-  const params = await searchParams;
-  const teamId = params.team;
+    const { data: gameStats } = await supabase
+      .from('game_stats')
+      .select('*')
+      .order('game_date', { ascending: false });
+
+    // Group stats by game date
+    const gamesByDate = new Map<string, GameData>();
+
+    (gameStats || []).forEach((stat: GameStat) => {
+      const player = (players || []).find((p: Player) => p.id === stat.player_id);
+      if (!player) return;
+
+      if (!gamesByDate.has(stat.game_date)) {
+        gamesByDate.set(stat.game_date, {
+          date: stat.game_date,
+          players: [],
+        });
+      }
+
+      gamesByDate.get(stat.game_date)?.players.push({
+        player,
+        stats: stat,
+      });
+    });
+
+    setGames(Array.from(gamesByDate.values()));
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (teamId) {
+      loadGames();
+    }
+  }, [teamId]);
 
   if (!teamId) {
     return (
@@ -45,40 +96,13 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
     );
   }
 
-  // Fetch data on server
-  const [team, players] = await Promise.all([
-    getTeam(teamId),
-    getPlayers(teamId)
-  ]);
-
-  // Fetch all game stats
-  const supabase = createServerClient();
-  const { data: gameStats } = await supabase
-    .from('game_stats')
-    .select('*')
-    .order('game_date', { ascending: false });
-
-  // Group stats by game date
-  const gamesByDate = new Map<string, GameData>();
-
-  (gameStats || []).forEach((stat: GameStat) => {
-    const player = (players || []).find((p: Player) => p.id === stat.player_id);
-    if (!player) return;
-
-    if (!gamesByDate.has(stat.game_date)) {
-      gamesByDate.set(stat.game_date, {
-        date: stat.game_date,
-        players: [],
-      });
-    }
-
-    gamesByDate.get(stat.game_date)?.players.push({
-      player,
-      stats: stat,
-    });
-  });
-
-  const games = Array.from(gamesByDate.values());
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen p-4 md:p-8">
@@ -141,5 +165,17 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
         )}
       </div>
     </main>
+  );
+}
+
+export default function GamesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl">Loading...</p>
+      </div>
+    }>
+      <GamesContent />
+    </Suspense>
   );
 }

@@ -57,7 +57,7 @@ function ManageContent() {
     if (teamId) {
       loadAllData();
     }
-  }, [teamId, loadAllData]);
+  }, [teamId]);
 
   const loadTeam = async () => {
     if (!teamId) return;

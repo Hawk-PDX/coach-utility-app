@@ -45,3 +45,10 @@ next-env.d.ts
 .history/
 .vscode/
 .idea/
+
+DATA_LOADING_PATTERN.md
+SERVER_COMPONENTS_MIGRATION_STATUS.md
+SERVER_COMPONENTS_PROOF_OF_CONCEPT.md
+__tests__*
+coach.test.ts
+parent.test.ts

@@ -1,7 +1,9 @@
+'use client';
+
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { getTeam, getPlayers } from '@/lib/supabase-server';
-import { createServerClient } from '@/lib/supabase-server';
-import type { Player } from '@/lib/supabase';
+import { supabase, type Player, type Team } from '@/lib/supabase';
 
 interface GameStat {
   id: string;
@@ -20,45 +22,41 @@ interface Award {
   description: string;
 }
 
-type SearchParams = {
-  team?: string;
-};
+function MedalsContent() {
+  const searchParams = useSearchParams();
+  const teamId = searchParams.get('team');
+  
+  const [team, setTeam] = useState<Team | null>(null);
+  const [awards, setAwards] = useState<Award[]>([]);
+  const [loading, setLoading] = useState(true);
 
-type MedalsPageProps = {
-  searchParams: Promise<SearchParams>;
-};
+  const loadAwards = async () => {
+    if (!teamId) return;
+    
+    const { data: teamData } = await supabase
+      .from('teams')
+      .select('*')
+      .eq('id', teamId)
+      .single();
+    
+    if (teamData) {
+      setTeam(teamData);
+    }
+    
+    const { data: players } = await supabase
+      .from('players')
+      .select('*')
+      .eq('team_id', teamId);
 
-export default async function MedalsPage({ searchParams }: MedalsPageProps) {
-  const params = await searchParams;
-  const teamId = params.team;
+    const { data: gameStats } = await supabase
+      .from('game_stats')
+      .select('*');
 
-  if (!teamId) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center">
-          <p className="text-xl mb-4">No team selected</p>
-          <Link href="/" className="text-blue-400 hover:text-blue-300 font-medium">
-            ← Back to Teams
-          </Link>
-        </div>
-      </div>
-    );
-  }
+    if (!players || !gameStats || gameStats.length === 0) {
+      setLoading(false);
+      return;
+    }
 
-  // Fetch data on server
-  const [team, players] = await Promise.all([
-    getTeam(teamId),
-    getPlayers(teamId)
-  ]);
-
-  const supabase = createServerClient();
-  const { data: gameStats } = await supabase
-    .from('game_stats')
-    .select('*');
-
-  let awards: Award[] = [];
-
-  if (players && gameStats && gameStats.length > 0) {
     const playerTotals = players.map((player) => {
       const stats = gameStats.filter((s: GameStat) => s.player_id === player.id);
       return {
@@ -95,7 +93,7 @@ export default async function MedalsPage({ searchParams }: MedalsPageProps) {
       });
     }
 
-    // Rebound Leader
+    // Rebound King/Queen
     const reboundLeader = playerTotals.reduce((max, p) => p.totalRebounds > max.totalRebounds ? p : max);
     if (reboundLeader.totalRebounds > 0) {
       newAwards.push({
@@ -107,7 +105,35 @@ export default async function MedalsPage({ searchParams }: MedalsPageProps) {
       });
     }
 
-    awards = newAwards;
+    setAwards(newAwards);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (teamId) {
+      loadAwards();
+    }
+  }, [teamId]);
+
+  if (!teamId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center">
+          <p className="text-xl mb-4">No team selected</p>
+          <Link href="/" className="text-blue-400 hover:text-blue-300 font-medium">
+            ← Back to Teams
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl">Loading...</p>
+      </div>
+    );
   }
 
   return (
@@ -147,7 +173,20 @@ export default async function MedalsPage({ searchParams }: MedalsPageProps) {
             <p className="text-gray-400">Start tracking stats to see who earns the medals.</p>
           </div>
         )}
+
       </div>
     </main>
+  );
+}
+
+export default function MedalsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl">Loading...</p>
+      </div>
+    }>
+      <MedalsContent />
+    </Suspense>
   );
 }

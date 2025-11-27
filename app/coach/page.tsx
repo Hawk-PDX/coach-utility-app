@@ -29,6 +29,61 @@ function CoachContent() {
   });
 
 
+  const loadTeam = async () => {
+    if (!teamId) return;
+    
+    const { data: teamData } = await supabase
+      .from('teams')
+      .select('*')
+      .eq('id', teamId)
+      .single();
+    
+    if (teamData) {
+      setTeam(teamData);
+    }
+  };
+
+  const loadPlayers = async () => {
+    if (!teamId) return;
+    
+    const { data } = await supabase
+      .from('players')
+      .select('*')
+      .eq('team_id', teamId)
+      .order('name');
+    
+    if (data) {
+      setPlayers(data);
+    }
+  };
+
+  const loadOrCheckTodaysGame = async () => {
+    if (!teamId) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    const { data: existingGame } = await supabase
+      .from('games')
+      .select('*')
+      .eq('team_id', teamId)
+      .eq('game_date', today)
+      .single();
+    
+    if (existingGame) {
+      setCurrentGame(existingGame);
+    }
+  };
+
+  const loadAllData = async () => {
+    if (!teamId) return;
+    await Promise.all([
+      loadTeam(),
+      loadPlayers(),
+      loadOrCheckTodaysGame()
+    ]);
+    setLoading(false);
+  };
+
   const createNewGame = async () => {
     if (!teamId) return;
     
@@ -52,49 +107,10 @@ function CoachContent() {
     }
   };
 
-
   useEffect(() => {
-    if (!teamId) return;
-    
-    const loadData = async () => {
-      // Load team and players
-      const { data: teamData } = await supabase
-        .from('teams')
-        .select('*')
-        .eq('id', teamId)
-        .single();
-      
-      if (teamData) {
-        setTeam(teamData);
-      }
-      
-      const { data } = await supabase
-        .from('players')
-        .select('*')
-        .eq('team_id', teamId)
-        .order('name');
-      
-      if (data) {
-        setPlayers(data);
-      }
-      setLoading(false);
-      
-      // Load or check for today's game
-      const today = new Date().toISOString().split('T')[0];
-      
-      const { data: existingGame } = await supabase
-        .from('games')
-        .select('*')
-        .eq('team_id', teamId)
-        .eq('game_date', today)
-        .single();
-      
-      if (existingGame) {
-        setCurrentGame(existingGame);
-      }
-    };
-    
-    loadData();
+    if (teamId) {
+      loadAllData();
+    }
   }, [teamId]);
 
   useEffect(() => {

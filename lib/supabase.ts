@@ -43,6 +43,7 @@ export type Player = {
 export type PlayTime = {
   id: string;
   player_id: string;
+  game_id: string;
   game_date: string;
   minutes_played: number;
   shifts: number;
@@ -53,6 +54,7 @@ export type PlayTime = {
 export type GameStats = {
   id: string;
   player_id: string;
+  game_id: string;
   game_date: string;
   points: number;
   assists: number;
