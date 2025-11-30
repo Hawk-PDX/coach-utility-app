@@ -102,6 +102,22 @@ export const getPlayerStats = cache(async (playerId: string) => {
   return data || [];
 });
 
+// Check if there's a game happening today
+export const getTodaysGame = cache(async (teamId: string) => {
+  const supabase = createServerClient();
+  const today = new Date().toISOString().split('T')[0];
+  
+  const { data, error } = await supabase
+    .from('games')
+    .select('*')
+    .eq('team_id', teamId)
+    .eq('game_date', today)
+    .maybeSingle(); // maybeSingle doesn't error if nothing found
+  
+  if (error) throw error;
+  return data || null;
+});
+
 export const getAllTeams = cache(async () => {
   const supabase = createServerClient();
   
